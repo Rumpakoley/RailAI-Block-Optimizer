@@ -1,4 +1,4 @@
-import { Corridor, Train, Requisition, BlockWindow, WhatIfScenario, AuditLogEntry } from '../types';
+import { Corridor, Train, Requisition, BlockWindow, WhatIfScenario, AuditLogEntry, ControllerAlterationProposal } from '../types';
 
 export const INITIAL_CORRIDORS: Corridor[] = [
   {
@@ -538,3 +538,159 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     blockId: 'blk-ncr-01'
   }
 ];
+
+export const INITIAL_PROPOSALS: ControllerAlterationProposal[] = [
+  {
+    id: 'prop-ncr-101',
+    proposalCode: 'PROP-NCR-2026-089',
+    proposingUnit: 'Station Master Unit — Sirathu (SRO)',
+    proposingOfficer: 'D. K. Mishra (Station Master)',
+    proposingRole: 'Station Master',
+    reasonType: 'emergency_track_defect',
+    title: 'Emergency P-Way Clamping & Shift for Sirathu UP Track Defect (Km 928)',
+    description: 'Track patrolman identified minor switch-rail tongue gap wear near Sirathu Loop Point 14B. Proposing +45 min time-shift to the automated block and requesting S&T point lock clearance.',
+    corridorId: 'cor-01',
+    targetSection: 'Sirathu – Khaga Section (Km 920 to 945)',
+    targetLine: 'UP MAIN',
+    requestedShiftMinutes: 45,
+    urgency: 'High',
+    createdAt: '2026-08-30 02:05 IST',
+    status: 'pending_consensus',
+    selectedOptionId: 'opt-01',
+    aiOptions: [
+      {
+        id: 'opt-01',
+        title: 'Option A: Punctuality Protection with Siding Regulation (Recommended)',
+        strategyBadge: 'Zero Passenger Delay • Dynamic Loop Stabling',
+        description: 'Shift Block BLK-NCR-2025-001 start from 01:30 to 02:15 (+45 min). High-priority Rajdhani passes with full speed clearance. Coal freight rake regulated on Sirathu Siding Loop for 22 minutes.',
+        revisedBlockWindow: {
+          blockId: 'blk-ncr-01',
+          code: 'BLK-NCR-2025-001',
+          newStartTime: '02:15',
+          newEndTime: '05:15',
+          durationMinutes: 180,
+          sectionName: 'Sirathu – Fatehpur Section (Km 915 to 945)',
+          lineType: 'UP MAIN'
+        },
+        trainImpacts: [
+          {
+            trainNumber: '12301',
+            trainName: 'Howrah - New Delhi Rajdhani Express',
+            action: 'Clear with Right of Way',
+            delayMinutes: 0
+          },
+          {
+            trainNumber: 'BOXN-8842',
+            trainName: 'DDU - Dadri Coal Freight Rake',
+            action: 'Regulate at Siding',
+            delayMinutes: 22,
+            regulatedStation: 'Sirathu (SRO)'
+          },
+          {
+            trainNumber: '22436',
+            trainName: 'Vande Bharat Express',
+            action: 'Clear with Right of Way',
+            delayMinutes: 0
+          }
+        ],
+        metrics: {
+          punctualityIndex: 99.2,
+          avgDelayMinutes: 1.1,
+          possessionTimeSavedMinutes: 180,
+          safetyComplianceScore: 98,
+          throughputPreservedPercent: 96.5
+        },
+        recommended: true
+      },
+      {
+        id: 'opt-02',
+        title: 'Option B: Maximized Possession Window with Upstream Buffer',
+        strategyBadge: 'Full 210 Min Window • Joint Ballast & OHE Tamping',
+        description: 'Extend joint window to 210 minutes (02:00 to 05:30) combining switch replacement with 25kV OHE dropper tuning. Imposes 30 km/h temporary caution on adjacent line.',
+        revisedBlockWindow: {
+          blockId: 'blk-ncr-01',
+          code: 'BLK-NCR-2025-001',
+          newStartTime: '02:00',
+          newEndTime: '05:30',
+          durationMinutes: 210,
+          sectionName: 'Sirathu – Fatehpur Section (Km 915 to 945)',
+          lineType: 'BOTH LINES'
+        },
+        trainImpacts: [
+          {
+            trainNumber: '12301',
+            trainName: 'Howrah - New Delhi Rajdhani Express',
+            action: 'Minor Speed Restriction',
+            delayMinutes: 4
+          },
+          {
+            trainNumber: 'BOXN-8842',
+            trainName: 'DDU - Dadri Coal Freight Rake',
+            action: 'Regulate at Siding',
+            delayMinutes: 38,
+            regulatedStation: 'Fatehpur (FTP)'
+          }
+        ],
+        metrics: {
+          punctualityIndex: 94.8,
+          avgDelayMinutes: 4.6,
+          possessionTimeSavedMinutes: 210,
+          safetyComplianceScore: 99,
+          throughputPreservedPercent: 91.2
+        },
+        recommended: false
+      }
+    ],
+    concernedStations: [
+      {
+        stationCode: 'SRO',
+        stationName: 'Sirathu Station',
+        role: 'Station Master',
+        officerName: 'D. K. Mishra',
+        status: 'approved',
+        votedAt: '2026-08-30 02:08 IST',
+        remarks: 'Point 14B verified. Siding loop 2 free for stabling coal rake BOXN-8842.',
+        required: true
+      },
+      {
+        stationCode: 'FTP',
+        stationName: 'Fatehpur Junction',
+        role: 'Station Master',
+        officerName: 'S. N. Tripathi',
+        status: 'approved',
+        votedAt: '2026-08-30 02:11 IST',
+        remarks: 'Down line clear. Platform 1 & 2 clear for morning Rajdhani transit.',
+        required: true
+      },
+      {
+        stationCode: 'PRYJ-CTRL',
+        stationName: 'Prayagraj Control Office',
+        role: 'Section Controller (PRYJ-CNB Section)',
+        officerName: 'A. K. Verma',
+        status: 'pending',
+        remarks: 'Reviewing conflict-free slot for Rajdhani 12301 right of way.',
+        required: true
+      },
+      {
+        stationCode: 'TRD-FTP',
+        stationName: 'TRD Traction Substation (Fatehpur)',
+        role: 'Chief Traction Foreman (TRD)',
+        officerName: 'R. P. Singh',
+        status: 'pending',
+        remarks: 'Awaiting 25kV power isolation earthing memo schedule alignment.',
+        required: true
+      },
+      {
+        stationCode: 'ST-CNB',
+        stationName: 'S&T Maintenance Depot (Kanpur Area)',
+        role: 'Signal Inspector (S&T)',
+        officerName: 'Vikram Joshi',
+        status: 'approved',
+        votedAt: '2026-08-30 02:10 IST',
+        remarks: 'Form S&T-102 disconnection memo drafted and signed digitally.',
+        required: true
+      }
+    ]
+  }
+];
+

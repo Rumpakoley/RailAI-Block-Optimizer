@@ -1,14 +1,14 @@
 import React from 'react';
 import { Corridor } from '../types';
 import { minutesToTime } from '../utils/timeUtils';
-import { Sparkles, Play, Pause, FastForward, Shield, Layers, RefreshCw, Train, Activity, Bell } from 'lucide-react';
+import { Sparkles, Play, Pause, FastForward, Shield, Layers, RefreshCw, Train, Activity, Bell, Radio, Users } from 'lucide-react';
 
 interface HeaderProps {
   corridors: Corridor[];
   selectedCorridor: Corridor;
   onSelectCorridor: (corridor: Corridor) => void;
-  activeTab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'APPROVAL' | 'ANALYTICS';
-  onChangeTab: (tab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'APPROVAL' | 'ANALYTICS') => void;
+  activeTab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS';
+  onChangeTab: (tab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS') => void;
   currentSimMinutes: number;
   isPlaying: boolean;
   onTogglePlay: () => void;
@@ -16,6 +16,7 @@ interface HeaderProps {
   simSpeed: number;
   onOpenCopilot: () => void;
   conflictCount: number;
+  pendingProposalCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -166,6 +167,24 @@ export const Header: React.FC<HeaderProps> = ({
             {conflictCount > 0 && (
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
             )}
+          </button>
+
+          <button
+            id="nav-tab-consensus"
+            onClick={() => onChangeTab('CONSENSUS')}
+            className={`px-3.5 py-2 rounded-xl transition flex items-center gap-2 relative ${
+              activeTab === 'CONSENSUS'
+                ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/20 ring-1 ring-indigo-400/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/80'
+            }`}
+          >
+            <Radio className="w-4 h-4" />
+            <span>Inter-Station Consensus</span>
+            {pendingProposalCount && pendingProposalCount > 0 ? (
+              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] font-mono animate-bounce">
+                {pendingProposalCount}
+              </span>
+            ) : null}
           </button>
 
           <button

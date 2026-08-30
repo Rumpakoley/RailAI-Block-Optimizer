@@ -173,7 +173,91 @@ export interface AuditLogEntry {
   timestamp: string;
   user: string;
   action: string;
-  category: 'OPTIMIZATION' | 'APPROVAL' | 'SAFETY_OVERRIDE' | 'WHAT_IF_SIMULATION' | 'RE_PLAN';
+  category: 'OPTIMIZATION' | 'APPROVAL' | 'SAFETY_OVERRIDE' | 'WHAT_IF_SIMULATION' | 'RE_PLAN' | 'STATION_CONSENSUS';
   details: string;
   blockId?: string;
 }
+
+export type ProposalReasonType = 
+  | 'emergency_track_defect' 
+  | 'ohe_power_fault' 
+  | 'signal_failure' 
+  | 'vip_train_precedence' 
+  | 'weather_monsoon' 
+  | 'manual_operational_shift'
+  | 'machine_breakdown';
+
+export type StationVoteStatus = 'pending' | 'approved' | 'rejected';
+
+export interface StationVote {
+  stationCode: string;
+  stationName: string;
+  role: string; // e.g. "Station Master", "Chief Traction Foreman (TRD)", "Signal Inspector (S&T)", "Section Engineer (P-Way)"
+  officerName: string;
+  status: StationVoteStatus;
+  votedAt?: string;
+  remarks?: string;
+  required: boolean;
+}
+
+export interface AIRescheduleOption {
+  id: string;
+  title: string;
+  strategyBadge: string;
+  description: string;
+  revisedBlockWindow: {
+    blockId: string;
+    code: string;
+    newStartTime: string;
+    newEndTime: string;
+    durationMinutes: number;
+    sectionName: string;
+    lineType: 'UP MAIN' | 'DOWN MAIN' | 'BOTH LINES';
+  };
+  trainImpacts: {
+    trainNumber: string;
+    trainName: string;
+    action: 'Clear with Right of Way' | 'Regulate at Siding' | 'Minor Speed Restriction' | 'Reschedule Departure';
+    delayMinutes: number;
+    regulatedStation?: string;
+  }[];
+  metrics: {
+    punctualityIndex: number; // e.g. 98.5%
+    avgDelayMinutes: number;
+    possessionTimeSavedMinutes: number;
+    safetyComplianceScore: number;
+    throughputPreservedPercent: number;
+  };
+  recommended: boolean;
+}
+
+export type AlterationProposalStatus = 
+  | 'draft' 
+  | 'evaluating_ai' 
+  | 'pending_consensus' 
+  | 'approved_and_applied' 
+  | 'rejected_retained_original';
+
+export interface ControllerAlterationProposal {
+  id: string;
+  proposalCode: string;
+  proposingUnit: string; // e.g. "Sirathu Station Master Unit (SRO)"
+  proposingOfficer: string; // e.g. "R. K. Sharma (Station Master)"
+  proposingRole: string;
+  reasonType: ProposalReasonType;
+  title: string;
+  description: string;
+  corridorId: string;
+  targetSection: string;
+  targetLine: 'UP MAIN' | 'DOWN MAIN' | 'BOTH LINES';
+  requestedShiftMinutes: number;
+  urgency: UrgencyLevel;
+  createdAt: string;
+  resolvedAt?: string;
+  status: AlterationProposalStatus;
+  aiOptions: AIRescheduleOption[];
+  selectedOptionId?: string;
+  concernedStations: StationVote[];
+  rejectionReason?: string;
+}
+

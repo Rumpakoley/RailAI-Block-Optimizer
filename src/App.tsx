@@ -1,10 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Corridor, Train, Requisition, BlockWindow, WhatIfScenario, AuditLogEntry, Approvals, SafetyChecklist } from './types';
-import { INITIAL_CORRIDORS, INITIAL_TRAINS, INITIAL_REQUISITIONS, INITIAL_BLOCKS, INITIAL_WHAT_IF_SCENARIOS, INITIAL_AUDIT_LOGS } from './data/mockData';
+import { 
+  Corridor, 
+  Train, 
+  Requisition, 
+  BlockWindow, 
+  WhatIfScenario, 
+  AuditLogEntry, 
+  Approvals, 
+  SafetyChecklist, 
+  ControllerAlterationProposal,
+  AIRescheduleOption 
+} from './types';
+import { 
+  INITIAL_CORRIDORS, 
+  INITIAL_TRAINS, 
+  INITIAL_REQUISITIONS, 
+  INITIAL_BLOCKS, 
+  INITIAL_WHAT_IF_SCENARIOS, 
+  INITIAL_AUDIT_LOGS,
+  INITIAL_PROPOSALS
+} from './data/mockData';
 import { Header } from './components/Header';
 import { StringDiagram } from './components/StringDiagram';
 import { OptimizerView } from './components/OptimizerView';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
+import { ControllerConsensusView } from './components/ControllerConsensusView';
+import { StationNotificationBanner } from './components/StationNotificationBanner';
 import { ApprovalWorkflow } from './components/ApprovalWorkflow';
 import { AnalyticsView } from './components/AnalyticsView';
 import { CopilotModal } from './components/CopilotModal';
@@ -21,8 +42,9 @@ export default function App() {
   const [blocks, setBlocks] = useState<BlockWindow[]>(INITIAL_BLOCKS);
   const [scenarios, setScenarios] = useState<WhatIfScenario[]>(INITIAL_WHAT_IF_SCENARIOS);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
+  const [proposals, setProposals] = useState<ControllerAlterationProposal[]>(INITIAL_PROPOSALS);
 
-  const [activeTab, setActiveTab] = useState<'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'APPROVAL' | 'ANALYTICS'>('STRING_GRAPH');
+  const [activeTab, setActiveTab] = useState<'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS'>('STRING_GRAPH');
 
   // Simulation Clock (starts at 02:15 = 135 minutes)
   const [currentSimMinutes, setCurrentSimMinutes] = useState<number>(135);
@@ -267,6 +289,194 @@ export default function App() {
     }));
   };
 
+  // Create new Controller Alteration Proposal
+  const handleCreateProposal = (newProposal: ControllerAlterationProposal) => {
+    setProposals(prev => [newProposal, ...prev]);
+
+    const log: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: newProposal.proposingUnit,
+      action: 'Emergency Alteration Broadcasted',
+      category: 'STATION_CONSENSUS',
+      details: `Submitted proposal ${newProposal.proposalCode}: "${newProposal.title}". Sent to ${newProposal.concernedStations.length} concerned stations for verification.`
+    };
+    setAuditLogs(prev => [log, ...prev]);
+  };
+
+  // Select AI Option for Proposal
+  const handleSelectProposalOption = (proposalId: string, optionId: string) => {
+    setProposals(prev => prev.map(p => {
+      if (p.id === proposalId) {
+        return { ...p, selectedOptionId: optionId };
+      }
+      return p;
+    }));
+  };
+
+  // Cast vote by Station Master / Department unit with consensus resolution
+  const handleStationVote = (
+    proposalId: string, 
+    stationCode: string, 
+    status: 'approved' | 'rejected', 
+    remarks?: string
+  ) => {
+    setProposals(prev => {
+      return prev.map(prop => {
+        if (prop.id !== proposalId) return prop;
+
+        const updatedStations = prop.concernedStations.map(st => {
+          if (st.stationCode === stationCode) {
+            return {
+              ...st,
+              status,
+              votedAt: new Date().toLocaleTimeString('en-IN') + ' IST',
+              remarks: remarks || st.remarks
+            };
+          }
+          return st;
+        });
+
+        const allApproved = updatedStations.every(s => s.status === 'approved');
+        const hasRejection = updatedStations.some(s => s.status === 'rejected');
+
+        let nextStatus = prop.status;
+        if (hasRejection) {
+          nextStatus = 'rejected_retained_original';
+        } else if (allApproved) {
+          nextStatus = 'approved_and_applied';
+        } else {
+          nextStatus = 'pending_consensus';
+        }
+
+        // IF 100% UNANIMOUS CONSENSUS ACHIEVED: APPLY REVISED AI SCHEDULE
+        if (allApproved) {
+          const selectedOption = prop.aiOptions.find(o => o.id === prop.selectedOptionId) || prop.aiOptions[0];
+          
+          if (selectedOption) {
+            // Apply revised block timing
+            setBlocks(prevBlocks => prevBlocks.map((b, idx) => {
+              if (idx === 0 || b.id === selectedOption.revisedBlockWindow.blockId) {
+                return {
+                  ...b,
+                  startTime: selectedOption.revisedBlockWindow.newStartTime,
+                  endTime: selectedOption.revisedBlockWindow.newEndTime,
+                  durationMinutes: selectedOption.revisedBlockWindow.durationMinutes,
+                  algorithmNotes: `Schedule updated via 100% Inter-Station Consensus under ${prop.proposalCode}.`
+                };
+              }
+              return b;
+            }));
+
+            // Regulate trains based on option impacts
+            setTrains(prevTrains => prevTrains.map(tr => {
+              const impact = selectedOption.trainImpacts.find(ti => ti.trainNumber === tr.number);
+              if (impact) {
+                return {
+                  ...tr,
+                  currentDelayMinutes: impact.delayMinutes,
+                  currentStatus: impact.action === 'Regulate at Siding' 
+                    ? 'Regulated at Siding' 
+                    : impact.delayMinutes > 0 ? 'Running Late' : 'On Time',
+                  regulatedAtStation: impact.regulatedStation
+                };
+              }
+              return tr;
+            }));
+
+            const successLog: AuditLogEntry = {
+              id: `aud-${Date.now()}`,
+              timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+              user: 'IR Multi-Station Consensus System',
+              action: 'Consensus Achieved — Schedule Committed',
+              category: 'STATION_CONSENSUS',
+              details: `All ${updatedStations.length} concerned stations approved ${prop.proposalCode}. Applied ${selectedOption.title} (Block shifted to ${selectedOption.revisedBlockWindow.newStartTime} - ${selectedOption.revisedBlockWindow.newEndTime}).`,
+              blockId: selectedOption.revisedBlockWindow.blockId
+            };
+            setAuditLogs(prevLogs => [successLog, ...prevLogs]);
+          }
+        }
+
+        // IF ANY STATION REJECTS: RESTORE BASELINE AI SCHEDULE UNTOUCHED
+        if (hasRejection) {
+          // Restore base block schedule
+          setBlocks(prevBlocks => prevBlocks.map((b, idx) => {
+            if (idx === 0) {
+              return {
+                ...b,
+                startTime: '01:30',
+                endTime: '04:30',
+                durationMinutes: 180,
+                algorithmNotes: 'Base AI Schedule strictly maintained after proposal rejection.'
+              };
+            }
+            return b;
+          }));
+
+          // Restore trains to normal
+          setTrains(prevTrains => prevTrains.map(tr => ({
+            ...tr,
+            currentDelayMinutes: 0,
+            currentStatus: 'On Time',
+            regulatedAtStation: undefined
+          })));
+
+          const rejectLog: AuditLogEntry = {
+            id: `aud-${Date.now()}`,
+            timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+            user: stationCode,
+            action: 'Proposal Rejected — Base AI Schedule Maintained',
+            category: 'STATION_CONSENSUS',
+            details: `Station unit ${stationCode} rejected ${prop.proposalCode} ("${remarks || 'Capacity restriction'}"). Alteration discarded; automated AI schedule preserved.`
+          };
+          setAuditLogs(prevLogs => [rejectLog, ...prevLogs]);
+        }
+
+        return {
+          ...prop,
+          status: nextStatus,
+          concernedStations: updatedStations,
+          resolvedAt: (allApproved || hasRejection) ? new Date().toLocaleTimeString('en-IN') + ' IST' : undefined
+        };
+      });
+    });
+  };
+
+  // Restore proposal to pending consensus
+  const handleResetProposalToOriginal = (proposalId: string) => {
+    setProposals(prev => prev.map(p => {
+      if (p.id === proposalId) {
+        return {
+          ...p,
+          status: 'pending_consensus',
+          concernedStations: p.concernedStations.map((s, idx) => ({
+            ...s,
+            status: idx < 2 ? 'approved' : 'pending',
+            votedAt: idx < 2 ? s.votedAt : undefined,
+            remarks: idx < 2 ? s.remarks : undefined
+          }))
+        };
+      }
+      return p;
+    }));
+
+    // Reset blocks and trains to initial state
+    setBlocks(INITIAL_BLOCKS);
+    setTrains(INITIAL_TRAINS);
+
+    const resetLog: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: 'Operations Controller',
+      action: 'Consensus Proposal Re-opened',
+      category: 'STATION_CONSENSUS',
+      details: `Re-opened inter-station consensus review for proposal ${proposalId}.`
+    };
+    setAuditLogs(prev => [resetLog, ...prev]);
+  };
+
+  const pendingProposalCount = proposals.filter(p => p.status === 'pending_consensus').length;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased">
       {/* Top Header */}
@@ -283,6 +493,15 @@ export default function App() {
         simSpeed={simSpeed}
         onOpenCopilot={() => setIsCopilotOpen(true)}
         conflictCount={conflictCount}
+        pendingProposalCount={pendingProposalCount}
+      />
+
+      {/* Global Inter-Station Notification Banner */}
+      <StationNotificationBanner
+        proposals={proposals}
+        onOpenProposal={(propId) => {
+          setActiveTab('CONSENSUS');
+        }}
       />
 
       {/* Main Content Area */}
@@ -321,6 +540,19 @@ export default function App() {
             onApplyScenario={handleApplyScenario}
             onResetScenarios={handleResetScenarios}
             onDynamicReplan={handleDynamicReplan}
+          />
+        )}
+
+        {activeTab === 'CONSENSUS' && (
+          <ControllerConsensusView
+            corridor={selectedCorridor}
+            blocks={blocks}
+            trains={trains}
+            proposals={proposals}
+            onCreateProposal={handleCreateProposal}
+            onSelectAIOption={handleSelectProposalOption}
+            onStationVote={handleStationVote}
+            onResetProposalToOriginal={handleResetProposalToOriginal}
           />
         )}
 
