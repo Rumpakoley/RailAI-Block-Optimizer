@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Corridor, Requisition, BlockWindow, Department } from '../types';
-import { Sparkles, Cpu, ShieldAlert, CheckCircle2, Clock, Zap, Wrench, Radio, Layers, Plus, ArrowRight, TrendingUp, AlertCircle } from 'lucide-react';
+import { Sparkles, Cpu, ShieldAlert, CheckCircle2, Clock, Zap, Wrench, Radio, Layers, Plus, ArrowRight, TrendingUp, AlertCircle, X } from 'lucide-react';
 import { formatDuration } from '../utils/timeUtils';
 
 interface OptimizerViewProps {
@@ -95,21 +95,21 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   };
 
   return (
-    <div id="optimizer-view" className="flex flex-col gap-6">
+    <div id="optimizer-view" className="flex flex-col gap-6 text-[#181816]">
       {/* SIH Decision Support Flow Pipeline Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-[#C87428] text-white">
                 SIH PS-26027 Core Decision Engine
               </span>
-              <span className="text-xs text-slate-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Hybrid ML + CP-SAT Solver</span>
+              <span className="text-xs text-[#636059] font-mono bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">Hybrid ML + CP-SAT Solver</span>
             </div>
-            <h2 className="text-lg font-bold text-white mt-1.5">
+            <h2 className="text-lg font-bold text-[#181816] mt-1.5 font-cinzel">
               Multi-Departmental Activity Bundler & Block Optimizer
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#636059]">
               Correlates uncoordinated maintenance requisitions across TMS (P-Way), TDMS (TRD), and SMMS (S&T) to synthesize single integrated shadow possession windows.
             </p>
           </div>
@@ -118,9 +118,9 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
             <button
               id="btn-add-requisition"
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition"
             >
-              <Plus className="w-4 h-4 text-emerald-400" />
+              <Plus className="w-4 h-4 text-[#2D7A4D]" />
               New Requisition
             </button>
 
@@ -128,7 +128,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
               id="btn-run-ai-optimizer"
               onClick={handleRunOptimizer}
               disabled={isOptimizing}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-600/20 border border-indigo-400/30 transition disabled:opacity-50 active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-white text-xs font-bold shadow-sm transition disabled:opacity-50 active:scale-95"
             >
               {isOptimizing ? (
                 <>
@@ -137,7 +137,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-indigo-200" />
+                  <Sparkles className="w-4 h-4 text-[#C87428]" />
                   Run AI Optimizer
                 </>
               )}
@@ -147,36 +147,36 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
         {/* 4-Step Pipeline Indicator */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3">
-          <div className={`p-3.5 rounded-xl border transition ${optimizationStep === 1 || (!isOptimizing && blocks.length > 0) ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-sm' : 'bg-slate-950/80 border-slate-800 text-slate-400'}`}>
+          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 1 || (!isOptimizing && blocks.length > 0) ? 'bg-[#FAF7F2] border-[#181816] text-[#181816] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
             <div className="flex items-center justify-between text-xs font-bold mb-1">
               <span>1. Prioritize Critical Work</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 font-mono">Safety &gt; Urgency</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E6E0D4] text-[#181816] font-mono">Safety &gt; Urgency</span>
             </div>
-            <p className="text-[11px] text-slate-400">Ranks TMS/TDMS/SMMS backlogs by track fatigue, OHE wear & USFD defects.</p>
+            <p className="text-[11px] text-[#636059]">Ranks TMS/TDMS/SMMS backlogs by track fatigue, OHE wear & USFD defects.</p>
           </div>
 
-          <div className={`p-3.5 rounded-xl border transition ${optimizationStep === 2 || (!isOptimizing && blocks.length > 0) ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm' : 'bg-slate-950/80 border-slate-800 text-slate-400'}`}>
+          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 2 || (!isOptimizing && blocks.length > 0) ? 'bg-[#EBF5EE] border-[#C6E7D2] text-[#2D7A4D] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
             <div className="flex items-center justify-between text-xs font-bold mb-1">
               <span>2. Match Compatible Tasks</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 font-mono">Shadow Blocking</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#C6E7D2] text-[#2D7A4D] font-mono">Shadow Blocking</span>
             </div>
-            <p className="text-[11px] text-slate-400">Bundles P-Way tamping with OHE de-energizing and S&T point overhaul.</p>
+            <p className="text-[11px] text-[#636059]">Bundles P-Way tamping with OHE de-energizing and S&T point overhaul.</p>
           </div>
 
-          <div className={`p-3.5 rounded-xl border transition ${optimizationStep === 3 || (!isOptimizing && blocks.length > 0) ? 'bg-blue-500/10 border-blue-500/40 text-blue-300 shadow-sm' : 'bg-slate-950/80 border-slate-800 text-slate-400'}`}>
+          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 3 || (!isOptimizing && blocks.length > 0) ? 'bg-[#EFF5FB] border-[#CCE0F5] text-[#2B5C8F] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
             <div className="flex items-center justify-between text-xs font-bold mb-1">
               <span>3. Optimize Constraints</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 font-mono">CP-SAT Engine</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#CCE0F5] text-[#2B5C8F] font-mono">CP-SAT Engine</span>
             </div>
-            <p className="text-[11px] text-slate-400">Respects high-priority passenger train headways and freight siding regulation.</p>
+            <p className="text-[11px] text-[#636059]">Respects high-priority passenger train headways and freight siding regulation.</p>
           </div>
 
-          <div className={`p-3.5 rounded-xl border transition ${optimizationStep === 4 || (!isOptimizing && blocks.length > 0) ? 'bg-purple-500/10 border-purple-500/40 text-purple-300 shadow-sm' : 'bg-slate-950/80 border-slate-800 text-slate-400'}`}>
+          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 4 || (!isOptimizing && blocks.length > 0) ? 'bg-[#FDF3EA] border-[#F7D4B8] text-[#C87428] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
             <div className="flex items-center justify-between text-xs font-bold mb-1">
               <span>4. Rank Feasible Options</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 font-mono">Confidence Score</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F7D4B8] text-[#C87428] font-mono">Confidence Score</span>
             </div>
-            <p className="text-[11px] text-slate-400">Advisory recommendations for Section Controller validation.</p>
+            <p className="text-[11px] text-[#636059]">Advisory recommendations for Section Controller validation.</p>
           </div>
         </div>
       </div>
@@ -185,44 +185,44 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Requisitions Inbox (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white">
+                <h3 className="text-sm font-bold text-[#181816]">
                   Maintenance Requisitions Feed
                 </h3>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-950 text-indigo-400 border border-slate-800 font-mono font-bold">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#F3EEE7] text-[#181816] border border-[#E6E0D4] font-mono font-bold">
                   {requisitions.length} Total ({pendingReqs.length} Unbundled)
                 </span>
               </div>
 
               {/* Department Filter */}
-              <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shadow-inner">
+              <div className="flex items-center bg-[#F3EEE7] p-1 rounded-full border border-[#E6E0D4] text-xs shadow-xs">
                 <button
                   id="dept-filter-all"
                   onClick={() => setSelectedDept('ALL')}
-                  className={`px-3 py-1 rounded-lg font-medium transition ${selectedDept === 'ALL' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`px-3 py-1 rounded-full font-medium transition ${selectedDept === 'ALL' ? 'bg-[#181816] text-white' : 'text-[#636059] hover:text-[#181816]'}`}
                 >
                   All ({requisitions.length})
                 </button>
                 <button
                   id="dept-filter-pway"
                   onClick={() => setSelectedDept('P-Way')}
-                  className={`px-3 py-1 rounded-lg font-medium flex items-center gap-1 transition ${selectedDept === 'P-Way' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`px-3 py-1 rounded-full font-medium flex items-center gap-1 transition ${selectedDept === 'P-Way' ? 'bg-[#181816] text-white' : 'text-[#636059] hover:text-[#181816]'}`}
                 >
                   <Wrench className="w-3 h-3" /> P-Way
                 </button>
                 <button
                   id="dept-filter-trd"
                   onClick={() => setSelectedDept('TRD')}
-                  className={`px-3 py-1 rounded-lg font-medium flex items-center gap-1 transition ${selectedDept === 'TRD' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`px-3 py-1 rounded-full font-medium flex items-center gap-1 transition ${selectedDept === 'TRD' ? 'bg-[#2B5C8F] text-white' : 'text-[#636059] hover:text-[#181816]'}`}
                 >
-                  <Zap className="w-3 h-3" /> TRD (OHE)
+                  <Zap className="w-3 h-3" /> TRD
                 </button>
                 <button
                   id="dept-filter-st"
                   onClick={() => setSelectedDept('S&T')}
-                  className={`px-3 py-1 rounded-lg font-medium flex items-center gap-1 transition ${selectedDept === 'S&T' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`px-3 py-1 rounded-full font-medium flex items-center gap-1 transition ${selectedDept === 'S&T' ? 'bg-[#2D7A4D] text-white' : 'text-[#636059] hover:text-[#181816]'}`}
                 >
                   <Radio className="w-3 h-3" /> S&T
                 </button>
@@ -238,79 +238,71 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
                   <div
                     key={req.id}
                     id={`req-card-${req.id}`}
-                    className={`p-4 rounded-xl border transition ${
+                    className={`p-4 rounded-2xl border transition ${
                       isBundled
-                        ? 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700'
-                        : 'bg-indigo-950/20 border-indigo-500/30 hover:border-indigo-500/50'
+                        ? 'bg-[#FAF7F2] border-[#E6E0D4] opacity-80'
+                        : 'bg-white border-[#E6E0D4] hover:border-[#181816]/40 shadow-xs'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono ${
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${
                               req.department === 'P-Way'
-                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                ? 'bg-[#F3EEE7] text-[#181816] border border-[#E6E0D4]'
                                 : req.department === 'TRD'
-                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                ? 'bg-[#EFF5FB] text-[#2B5C8F] border border-[#CCE0F5]'
+                                : 'bg-[#EBF5EE] text-[#2D7A4D] border border-[#C6E7D2]'
                             }`}
                           >
                             {req.sourceSystem} • {req.department}
                           </span>
-                          <span className="text-xs font-semibold text-slate-200">
+                          <span className="text-xs font-semibold text-[#181816]">
                             {req.title}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1.5">
+                        <p className="text-[11px] text-[#636059] mt-1.5">
                           {req.defectDetails || req.subsystem}
                         </p>
                       </div>
 
                       <div className="text-right shrink-0">
                         <span
-                          className={`text-[10px] px-2.5 py-0.5 rounded font-bold uppercase ${
+                          className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase ${
                             req.urgency === 'Emergency'
-                              ? 'bg-rose-500 text-white shadow-sm'
+                              ? 'bg-[#C53030] text-white shadow-xs'
                               : req.urgency === 'High'
-                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                              : 'bg-slate-800 text-slate-400'
+                              ? 'bg-[#FDF3EA] text-[#C87428] border border-[#F7D4B8]'
+                              : 'bg-[#F3EEE7] text-[#636059]'
                           }`}
                         >
                           {req.urgency}
                         </span>
-                        <div className="text-[11px] font-mono text-slate-400 mt-1">
+                        <div className="text-[11px] font-mono text-[#8F8A80] mt-1">
                           {formatDuration(req.durationMinutes)}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-800/60 text-[11px] text-slate-400">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#EDE7DC] text-[11px] text-[#636059]">
                       <div className="flex items-center gap-3">
                         <span>📍 Km {req.startKm}–{req.endKm} ({req.track})</span>
                         {req.requiresPowerBlock && (
-                          <span className="text-blue-400 flex items-center gap-0.5 font-medium">
+                          <span className="text-[#2B5C8F] flex items-center gap-0.5 font-medium">
                             <Zap className="w-3 h-3" /> Power Block Req.
                           </span>
                         )}
                         {req.requiresDisconnectMemo && (
-                          <span className="text-emerald-400 flex items-center gap-0.5 font-medium">
+                          <span className="text-[#2D7A4D] flex items-center gap-0.5 font-medium">
                             <ShieldAlert className="w-3 h-3" /> S&T Memo
                           </span>
                         )}
                       </div>
 
-                      <div>
-                        {isBundled ? (
-                          <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Bundled in {req.assignedBlockId}
-                          </span>
-                        ) : (
-                          <span className="text-indigo-400 text-[10px] bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20 font-medium">
-                            Awaiting AI Bundler
-                          </span>
-                        )}
-                      </div>
+                      <span className={`font-mono text-[10px] font-bold ${isBundled ? 'text-[#2D7A4D]' : 'text-[#C87428]'}`}>
+                        {isBundled ? `✓ Bundled in ${req.assignedBlockId}` : '⏳ Pending Optimization'}
+                      </span>
                     </div>
                   </div>
                 );
@@ -319,247 +311,208 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
           </div>
         </div>
 
-        {/* Right Column: AI Proposed Integrated Blocks (5 cols) */}
+        {/* Right Column: Synthesized Block Windows (5 cols) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                Ranked Integrated Block Plans
-              </h3>
-              <span className="text-xs text-slate-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-                {blocks.length} Option{blocks.length > 1 ? 's' : ''} Feasible
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#181816]">
+                  AI Integrated Block Proposals
+                </h3>
+                <p className="text-[11px] text-[#636059]">
+                  Multi-objective CP-SAT solution candidates
+                </p>
+              </div>
+              <span className="text-xs font-mono font-bold bg-[#EBF5EE] text-[#2D7A4D] px-2.5 py-1 rounded-full border border-[#C6E7D2]">
+                {blocks.length} Active Plan
               </span>
             </div>
 
-            {blocks.length === 0 ? (
-              <div className="p-8 text-center bg-slate-950 rounded-xl border border-dashed border-slate-800 text-slate-400">
-                <Cpu className="w-8 h-8 mx-auto mb-2 text-slate-600 animate-pulse" />
-                <p className="text-xs">No integrated blocks generated yet.</p>
-                <button
-                  onClick={handleRunOptimizer}
-                  className="mt-3 px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-500 shadow-md transition"
+            {/* Block Cards List */}
+            <div className="flex flex-col gap-4">
+              {blocks.map(blk => (
+                <div
+                  key={blk.id}
+                  id={`block-card-${blk.id}`}
+                  onClick={() => onSelectBlock(blk)}
+                  className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] hover:border-[#181816]/50 cursor-pointer transition shadow-xs flex flex-col gap-3 group"
                 >
-                  Run Solver Now
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {blocks.map(blk => (
-                  <div
-                    key={blk.id}
-                    id={`candidate-block-${blk.id}`}
-                    onClick={() => onSelectBlock(blk)}
-                    className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 hover:border-indigo-400 transition cursor-pointer shadow-lg group"
-                  >
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold font-mono text-indigo-300">
-                            {blk.code}
-                          </span>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                            {blk.confidenceScore}% Confidence Score
-                          </span>
-                        </div>
-                        <h4 className="text-sm font-bold text-white mt-1">
-                          {blk.title}
-                        </h4>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="text-xs font-bold font-mono text-indigo-200 bg-indigo-950 px-2.5 py-1 rounded-lg border border-indigo-800">
-                          {blk.startTime} – {blk.endTime}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-xs text-[#181816] bg-white px-2 py-0.5 rounded border border-[#E6E0D4]">
+                          {blk.code}
                         </span>
-                        <div className="text-[10px] text-slate-400 mt-1">
-                          {blk.durationMinutes} mins
-                        </div>
+                        <span className="text-xs font-bold text-[#181816] group-hover:text-[#C87428] transition">
+                          {blk.title}
+                        </span>
                       </div>
-                    </div>
-
-                    {/* Section details */}
-                    <div className="text-xs text-slate-400 mt-2">
-                      📍 {blk.sectionName} ({blk.lineType})
-                    </div>
-
-                    {/* Bundled Activities preview */}
-                    <div className="mt-3 bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                      <div className="text-[11px] font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-                        <span>Coordinated Departments:</span>
-                        <div className="flex items-center gap-1">
-                          {blk.departmentsInvolved.map(dept => (
-                            <span
-                              key={dept}
-                              className={`text-[9px] px-2 py-0.5 rounded font-bold ${
-                                dept === 'P-Way'
-                                  ? 'bg-indigo-500/20 text-indigo-300'
-                                  : dept === 'TRD'
-                                  ? 'bg-blue-500/20 text-blue-300'
-                                  : 'bg-emerald-500/20 text-emerald-300'
-                              }`}
-                            >
-                              {dept}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-slate-400">
-                        Simultaneously executing <strong>{blk.bundledRequisitions.length} tasks</strong> under single 25kV power & traffic isolation window.
+                      <p className="text-[11px] text-[#636059] mt-1">
+                        {blk.sectionName} ({blk.lineType})
                       </p>
                     </div>
 
-                    {/* Value Metrics Badges */}
-                    <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-800 text-xs">
-                      <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-                        <div className="text-[10px] text-slate-400">Asset Availability</div>
-                        <div className="text-sm font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
-                          <TrendingUp className="w-3.5 h-3.5" />
-                          +{blk.metrics.assetAvailabilityGainPercent}% Gain
-                        </div>
-                      </div>
-                      <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-                        <div className="text-[10px] text-slate-400">Possession Saved</div>
-                        <div className="text-sm font-bold text-indigo-300 mt-0.5">
-                          {blk.metrics.possessionHoursSavedMinutes} Mins Saved
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Train Impact Note */}
-                    <div className="mt-3 flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400">
-                        Passenger Trains Delayed: <strong className="text-emerald-400">{blk.punctualityImpact.totalDelayMinutes === 0 ? '0 mins' : `${blk.punctualityImpact.totalDelayMinutes} mins`}</strong>
+                    <div className="text-right">
+                      <span className="text-xs font-mono font-bold text-[#181816] bg-white px-2.5 py-1 rounded-full border border-[#E6E0D4] block">
+                        {blk.startTime} – {blk.endTime}
                       </span>
-                      <span className="text-indigo-400 font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Inspect & Validate <ArrowRight className="w-3 h-3" />
+                      <span className="text-[10px] text-[#8F8A80] mt-0.5 block">
+                        {blk.durationMinutes} mins
                       </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+
+                  {/* Bundled Requisitions Badges */}
+                  <div className="bg-white p-3 rounded-xl border border-[#E6E0D4] flex flex-col gap-1.5">
+                    <span className="text-[10px] uppercase font-bold text-[#8F8A80] tracking-wider">
+                      Bundled Department Requisitions ({blk.bundledRequisitions.length}):
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {blk.bundledRequisitions.map(r => (
+                        <span
+                          key={r.id}
+                          className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F3EEE7] text-[#181816] border border-[#E6E0D4]"
+                        >
+                          {r.department}: {r.subsystem}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Metrics Row */}
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#EDE7DC] text-center text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#8F8A80] block">Asset Availability</span>
+                      <strong className="text-[#2D7A4D] font-mono">+{blk.metrics.assetAvailabilityGainPercent}%</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#8F8A80] block">Possession Saved</span>
+                      <strong className="text-[#181816] font-mono">{blk.metrics.possessionHoursSavedMinutes} mins</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#8F8A80] block">Confidence</span>
+                      <strong className="text-[#C87428] font-mono">{blk.confidenceScore}%</strong>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-[#181816] pt-1 font-semibold">
+                    <span className="flex items-center gap-1 text-[11px] text-[#636059]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#2D7A4D]" /> Multi-Dept Pre-Checked
+                    </span>
+                    <span className="flex items-center gap-1 text-[#181816] group-hover:translate-x-1 transition text-[11px]">
+                      Advisory Sanctions <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Add Custom Requisition Modal */}
+      {/* CREATE REQUISITION MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-white mb-1">
-              Create Maintenance Requisition
-            </h3>
-            <p className="text-xs text-slate-400 mb-4">
-              Enter track maintenance, OHE electrical, or signaling demand parameters for AI corridor planning.
-            </p>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-3 mb-4">
+              <h4 className="text-sm font-bold text-[#181816]">
+                Ingest Maintenance Requisition into Optimizer
+              </h4>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-[#8F8A80] hover:text-[#181816] p-1 rounded-full hover:bg-[#F3EEE7]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-            <form onSubmit={handleCreateRequisition} className="flex flex-col gap-4">
+            <form onSubmit={handleCreateRequisition} className="flex flex-col gap-4 text-xs">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Requisition Title / Activity Description
-                </label>
+                <label className="block text-[#636059] font-medium mb-1">Requisition Title</label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g., Turnout 102B Point Machine Overhaul & Lubrication"
                   value={newTitle}
                   onChange={e => setNewTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                  placeholder="e.g. Ultrasonic Flaw Detection (USFD) & Rail Grinding"
+                  className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl p-2.5 text-[#181816] focus:outline-none focus:ring-2 focus:ring-[#181816]"
+                  required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Department
-                  </label>
+                  <label className="block text-[#636059] font-medium mb-1">Department</label>
                   <select
                     value={newDept}
-                    onChange={e => {
-                      const dept = e.target.value as Department;
-                      setNewDept(dept);
-                      setNewSubsystem(dept === 'P-Way' ? 'Track Tamping' : dept === 'TRD' ? 'OHE Inspection' : 'Point Overhaul');
-                    }}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                    onChange={e => setNewDept(e.target.value as Department)}
+                    className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl p-2.5 text-[#181816] focus:outline-none"
                   >
-                    <option value="P-Way">Engineering (P-Way)</option>
-                    <option value="TRD">Electrical Traction (TRD)</option>
-                    <option value="S&T">Signaling & Telecom (S&T)</option>
+                    <option value="P-Way">P-Way (Permanent Way)</option>
+                    <option value="TRD">TRD (Traction Distribution)</option>
+                    <option value="S&T">S&T (Signal & Telecom)</option>
                   </select>
                 </div>
-
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Urgency
-                  </label>
+                  <label className="block text-[#636059] font-medium mb-1">Urgency</label>
                   <select
                     value={newUrgency}
                     onChange={e => setNewUrgency(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl p-2.5 text-[#181816] focus:outline-none"
                   >
-                    <option value="Emergency">Emergency (Immediate)</option>
-                    <option value="High">High (Within 24 hrs)</option>
-                    <option value="Medium">Medium (Scheduled)</option>
-                    <option value="Low">Low (Routine)</option>
+                    <option value="Emergency">Emergency</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Duration (Mins)
-                  </label>
-                  <input
-                    type="number"
-                    min="30"
-                    max="480"
-                    step="15"
-                    value={newDuration}
-                    onChange={e => setNewDuration(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
+                  <label className="block text-[#636059] font-medium mb-1">Track</label>
+                  <select
+                    value={newTrack}
+                    onChange={e => setNewTrack(e.target.value as any)}
+                    className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl p-2.5 text-[#181816] focus:outline-none"
+                  >
+                    <option value="UP MAIN">UP MAIN</option>
+                    <option value="DOWN MAIN">DOWN MAIN</option>
+                    <option value="BOTH LINES">BOTH LINES</option>
+                  </select>
                 </div>
-
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Start Km
-                  </label>
+                  <label className="block text-[#636059] font-medium mb-1">Start Km</label>
                   <input
                     type="number"
                     value={newStartKm}
                     onChange={e => setNewStartKm(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl p-2.5 text-[#181816] focus:outline-none"
                   />
                 </div>
-
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    End Km
-                  </label>
+                  <label className="block text-[#636059] font-medium mb-1">End Km</label>
                   <input
                     type="number"
                     value={newEndKm}
                     onChange={e => setNewEndKm(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl p-2.5 text-[#181816] focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#EDE7DC]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700"
+                  className="px-4 py-2 rounded-full bg-[#F3EEE7] text-[#636059] hover:bg-[#EAE4D9]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition"
+                  className="px-5 py-2 rounded-full bg-[#181816] text-white font-bold hover:bg-[#2C2B27]"
                 >
-                  Add to Optimization Pool
+                  Save & Ingest
                 </button>
               </div>
             </form>

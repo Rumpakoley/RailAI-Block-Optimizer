@@ -115,21 +115,21 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
   }
 
   return (
-    <div id="string-diagram-container" className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4 backdrop-blur-sm">
+    <div id="string-diagram-container" className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm flex flex-col gap-4">
       {/* Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#EDE7DC] pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">
-            <Layers className="w-5 h-5" />
+          <div className="p-2.5 rounded-2xl bg-[#F3EEE7] border border-[#E6E0D4] text-[#181816]">
+            <Layers className="w-5 h-5 text-[#C87428]" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-[#181816] flex items-center gap-2">
               Indian Railways Time-Space String Diagram
-              <span className="text-xs px-2.5 py-0.5 rounded-md bg-slate-950 text-indigo-300 font-mono border border-slate-800">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#F3EEE7] text-[#181816] font-mono border border-[#E6E0D4]">
                 {corridor.name}
               </span>
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#636059]">
               Interactive 24-Hour Train Path Graph & Corridor Block Occupancy Projection
             </p>
           </div>
@@ -138,12 +138,12 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
         {/* Filters & Range Presets */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Preset time windows */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shadow-inner">
+          <div className="flex items-center bg-[#F3EEE7] p-1 rounded-full border border-[#E6E0D4] text-xs shadow-xs">
             <button
               id="time-preset-night"
               onClick={() => setTimeRange({ start: 0, end: 360 })}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                timeRange.start === 0 && timeRange.end === 360 ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 rounded-full font-medium transition ${
+                timeRange.start === 0 && timeRange.end === 360 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
               }`}
             >
               00:00–06:00 (Trough)
@@ -151,8 +151,8 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             <button
               id="time-preset-morning"
               onClick={() => setTimeRange({ start: 360, end: 720 })}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                timeRange.start === 360 && timeRange.end === 720 ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 rounded-full font-medium transition ${
+                timeRange.start === 360 && timeRange.end === 720 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
               }`}
             >
               06:00–12:00 (Peak)
@@ -160,8 +160,8 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             <button
               id="time-preset-afternoon"
               onClick={() => setTimeRange({ start: 720, end: 1080 })}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                timeRange.start === 720 && timeRange.end === 1080 ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 rounded-full font-medium transition ${
+                timeRange.start === 720 && timeRange.end === 1080 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
               }`}
             >
               12:00–18:00
@@ -169,8 +169,8 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             <button
               id="time-preset-evening"
               onClick={() => setTimeRange({ start: 1080, end: 1440 })}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                timeRange.start === 1080 && timeRange.end === 1440 ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 rounded-full font-medium transition ${
+                timeRange.start === 1080 && timeRange.end === 1440 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
               }`}
             >
               18:00–24:00
@@ -178,8 +178,8 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             <button
               id="time-preset-full"
               onClick={() => setTimeRange({ start: 0, end: 1440 })}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                timeRange.start === 0 && timeRange.end === 1440 ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 rounded-full font-medium transition ${
+                timeRange.start === 0 && timeRange.end === 1440 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
               }`}
             >
               24h Overview
@@ -187,26 +187,26 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           </div>
 
           {/* Track Filter */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shadow-inner">
-            <span className="text-slate-500 px-2 flex items-center gap-1"><Filter className="w-3 h-3" /> Track:</span>
+          <div className="flex items-center bg-[#F3EEE7] p-1 rounded-full border border-[#E6E0D4] text-xs shadow-xs">
+            <span className="text-[#8F8A80] px-2 flex items-center gap-1"><Filter className="w-3 h-3" /> Track:</span>
             <button
               id="track-filter-all"
               onClick={() => setTrackFilter('ALL')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition ${trackFilter === 'ALL' ? 'bg-slate-800 text-white' : 'text-slate-400'}`}
+              className={`px-3 py-1 rounded-full font-medium transition ${trackFilter === 'ALL' ? 'bg-[#181816] text-white' : 'text-[#636059]'}`}
             >
               All
             </button>
             <button
               id="track-filter-up"
               onClick={() => setTrackFilter('UP')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition ${trackFilter === 'UP' ? 'bg-emerald-600 text-white' : 'text-slate-400'}`}
+              className={`px-3 py-1 rounded-full font-medium transition ${trackFilter === 'UP' ? 'bg-[#2D7A4D] text-white' : 'text-[#636059]'}`}
             >
               UP Line
             </button>
             <button
               id="track-filter-down"
               onClick={() => setTrackFilter('DOWN')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition ${trackFilter === 'DOWN' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`px-3 py-1 rounded-full font-medium transition ${trackFilter === 'DOWN' ? 'bg-[#2B5C8F] text-white' : 'text-[#636059]'}`}
             >
               DOWN Line
             </button>
@@ -216,21 +216,21 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
 
       {/* Conflicts Banner if any */}
       {conflicts.length > 0 && (
-        <div className="bg-rose-950/40 border border-rose-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3 text-xs text-rose-200 shadow-sm">
+        <div className="bg-[#FDF2F2] border border-[#F8D7D7] rounded-2xl p-4 flex items-center justify-between gap-3 text-xs text-[#C53030] shadow-xs">
           <div className="flex items-center gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
+            <AlertTriangle className="w-4 h-4 text-[#C53030] shrink-0 animate-pulse" />
             <span>
               <strong>Train-Block Conflict Detected:</strong> Train <strong>{conflicts[0].train.number} ({conflicts[0].train.name})</strong> overlaps with <strong>{conflicts[0].block.code}</strong> around {conflicts[0].conflictTime} hrs.
             </span>
           </div>
-          <span className="bg-rose-500 text-white font-bold px-2.5 py-1 rounded-md text-[11px] shadow-sm">
+          <span className="bg-[#C53030] text-white font-bold px-3 py-1 rounded-full text-[11px] shadow-xs">
             AI Re-Plan Suggested
           </span>
         </div>
       )}
 
       {/* SVG Canvas */}
-      <div ref={containerRef} className="relative overflow-x-auto bg-slate-950 rounded-xl border border-slate-800/80 p-3 shadow-inner">
+      <div ref={containerRef} className="relative overflow-x-auto bg-[#FAF7F2] rounded-2xl border border-[#E6E0D4] p-3 shadow-inner">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="w-full h-auto min-w-[750px] select-none"
@@ -238,10 +238,10 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           <defs>
             {/* Diagonal hatching pattern for maintenance block */}
             <pattern id="block-hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="12" stroke="#6366f1" strokeWidth="2.5" strokeOpacity="0.4" />
+              <line x1="0" y1="0" x2="0" y2="12" stroke="#C87428" strokeWidth="2.5" strokeOpacity="0.3" />
             </pattern>
             <pattern id="conflict-hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="12" stroke="#ef4444" strokeWidth="3" strokeOpacity="0.6" />
+              <line x1="0" y1="0" x2="0" y2="12" stroke="#C53030" strokeWidth="3" strokeOpacity="0.5" />
             </pattern>
             {/* Glow filters */}
             <filter id="train-glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -260,15 +260,15 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
                   y1={padding.top}
                   x2={x}
                   y2={padding.top + plotHeight}
-                  stroke="#334155"
+                  stroke="#E6E0D4"
                   strokeWidth="1"
                   strokeDasharray="4 4"
-                  opacity="0.6"
+                  opacity="0.8"
                 />
                 <text
                   x={x}
                   y={padding.top + plotHeight + 20}
-                  fill="#94a3b8"
+                  fill="#8F8A80"
                   fontSize="10"
                   fontFamily="JetBrains Mono, monospace"
                   textAnchor="middle"
@@ -289,15 +289,15 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
                   y1={y}
                   x2={padding.left + plotWidth}
                   y2={y}
-                  stroke="#334155"
+                  stroke="#E6E0D4"
                   strokeWidth={st.isJunction ? '1.5' : '0.8'}
-                  opacity={st.isJunction ? '0.8' : '0.4'}
+                  opacity={st.isJunction ? '0.9' : '0.6'}
                 />
                 {/* Station Label on Y Axis */}
                 <text
                   x={padding.left - 12}
                   y={y + 4}
-                  fill={st.isJunction ? '#f8fafc' : '#cbd5e1'}
+                  fill={st.isJunction ? '#181816' : '#636059'}
                   fontSize={st.isJunction ? '11' : '10'}
                   fontWeight={st.isJunction ? '700' : '500'}
                   textAnchor="end"
@@ -307,7 +307,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
                 <text
                   x={padding.left - 12}
                   y={y + 14}
-                  fill="#64748b"
+                  fill="#8F8A80"
                   fontSize="8.5"
                   fontFamily="JetBrains Mono, monospace"
                   textAnchor="end"
@@ -520,18 +520,18 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
                 y1={padding.top}
                 x2={getX(currentSimulationMinutes)}
                 y2={padding.top + plotHeight}
-                stroke="#6366f1"
-                strokeWidth="2.5"
+                stroke="#C87428"
+                strokeWidth="2"
               />
               {/* Top pointer badge */}
               <polygon
                 points={`${getX(currentSimulationMinutes) - 6},${padding.top - 8} ${getX(currentSimulationMinutes) + 6},${padding.top - 8} ${getX(currentSimulationMinutes)},${padding.top}`}
-                fill="#6366f1"
+                fill="#C87428"
               />
               <text
                 x={getX(currentSimulationMinutes)}
                 y={padding.top - 12}
-                fill="#818cf8"
+                fill="#C87428"
                 fontSize="10"
                 fontWeight="800"
                 fontFamily="JetBrains Mono, monospace"
@@ -546,7 +546,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           <text
             x={padding.left / 2}
             y={padding.top - 10}
-            fill="#94a3b8"
+            fill="#8F8A80"
             fontSize="10"
             fontWeight="700"
             textAnchor="middle"
@@ -556,7 +556,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           <text
             x={padding.left + plotWidth / 2}
             y={padding.top + plotHeight + 35}
-            fill="#94a3b8"
+            fill="#8F8A80"
             fontSize="10"
             fontWeight="700"
             textAnchor="middle"
@@ -567,33 +567,33 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
       </div>
 
       {/* Legend & Summary Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#636059] bg-[#FAF7F2] p-4 rounded-2xl border border-[#E6E0D4]">
         <div className="flex flex-wrap items-center gap-4">
-          <span className="font-semibold text-slate-200">Legend:</span>
+          <span className="font-bold text-[#181816]">Legend:</span>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-blue-500 inline-block"></span>
+            <span className="w-3 h-0.5 bg-blue-600 inline-block"></span>
             <span>Vande Bharat</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-red-500 inline-block"></span>
+            <span className="w-3 h-0.5 bg-red-600 inline-block"></span>
             <span>Rajdhani / Premium</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-emerald-500 inline-block"></span>
+            <span className="w-3 h-0.5 bg-emerald-600 inline-block"></span>
             <span>Mail / Express</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 border-t-2 border-dashed border-purple-500 inline-block"></span>
+            <span className="w-3 h-0.5 border-t-2 border-dashed border-purple-600 inline-block"></span>
             <span>Freight (BOXN/Container)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-indigo-500/40 border border-indigo-500 rounded-xs inline-block"></span>
+            <span className="w-3 h-3 bg-[#C87428]/20 border border-[#C87428] rounded-xs inline-block"></span>
             <span>Bundled Shadow Block</span>
           </div>
         </div>
 
-        <div className="text-[11px] text-slate-500 flex items-center gap-1">
-          <Info className="w-3.5 h-3.5 text-slate-400" />
+        <div className="text-[11px] text-[#8F8A80] flex items-center gap-1">
+          <Info className="w-3.5 h-3.5 text-[#636059]" />
           Click on any train line or block rectangle to inspect details & approval flow.
         </div>
       </div>

@@ -478,7 +478,7 @@ export default function App() {
   const pendingProposalCount = proposals.filter(p => p.status === 'pending_consensus').length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#181816] flex flex-col font-sans selection:bg-[#181816] selection:text-[#FAF7F2] antialiased">
       {/* Top Header */}
       <Header
         corridors={corridors}
@@ -575,16 +575,16 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/90 backdrop-blur-md py-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-[#EDE7DC] bg-[#FAF7F2] py-5 text-center text-xs text-[#636059]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-            <span>
+            <span className="w-2 h-2 rounded-full bg-[#C87428]"></span>
+            <span className="font-semibold text-[#181816]">
               Smart India Hackathon 2025 • PS-26027: AI-Powered Automatic Block Planning for Indian Railways
             </span>
           </div>
-          <span className="font-mono text-slate-400 text-[11px] bg-slate-900 px-2.5 py-1 rounded-md border border-slate-800">
-            RailAI Multi-Department Decision Support System • Geometric Balance Edition
+          <span className="font-mono text-[#181816] text-[11px] bg-white px-3 py-1 rounded-full border border-[#E6E0D4]">
+            RailAI Multi-Department Decision Support System • Morphiq Edition
           </span>
         </div>
       </footer>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Corridor, Train, BlockWindow, WhatIfScenario } from '../types';
-import { AlertTriangle, RefreshCw, Sparkles, CheckCircle2, Clock, Train as TrainIcon, ShieldAlert, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
-import { formatDuration } from '../utils/timeUtils';
+import { AlertTriangle, RefreshCw, Sparkles, CheckCircle2, Clock, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 interface WhatIfSimulatorProps {
   corridor: Corridor;
@@ -65,23 +64,23 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
   };
 
   return (
-    <div id="what-if-simulator" className="flex flex-col gap-6">
+    <div id="what-if-simulator" className="flex flex-col gap-6 text-[#181816]">
       {/* Top Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">
+              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-[#C53030] text-white">
                 Disruption & Resilience Management
               </span>
-              <span className="text-xs text-slate-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+              <span className="text-xs text-[#636059] font-mono bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">
                 Live Event Detection & Dynamic Re-Optimization
               </span>
             </div>
-            <h2 className="text-lg font-bold text-white mt-1.5">
+            <h2 className="text-lg font-bold text-[#181816] mt-1.5 font-cinzel">
               Dynamic What-If Corridor Delay & Fault Simulator
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#636059]">
               Test resilience against real-world Indian Railways disruptions (delayed superfast trains, emergency rail fractures, machine failures) and generate instant AI dynamic re-plans.
             </p>
           </div>
@@ -91,7 +90,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
               <button
                 id="btn-reset-disruptions"
                 onClick={onResetScenarios}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Reset Disruptions
@@ -105,9 +104,9 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Preset Disruption Scenarios (5 cols) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
-            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-indigo-400" />
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#181816] mb-3 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#C87428]" />
               Realistic Disruption Presets
             </h3>
 
@@ -121,44 +120,44 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                     key={scenario.id}
                     id={`scenario-card-${scenario.id}`}
                     onClick={() => setSelectedScenarioId(scenario.id)}
-                    className={`p-4 rounded-xl border transition cursor-pointer ${
+                    className={`p-4 rounded-2xl border transition cursor-pointer ${
                       isSelected
-                        ? 'bg-slate-950 border-indigo-500 shadow-md ring-1 ring-indigo-500/30'
-                        : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700'
+                        ? 'bg-[#FAF7F2] border-[#181816] shadow-xs ring-1 ring-[#181816]'
+                        : 'bg-white border-[#E6E0D4] hover:border-[#181816]/30'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono ${
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${
                             scenario.severity === 'Critical'
-                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                              : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              ? 'bg-[#FDF2F2] text-[#C53030] border border-[#F8D7D7]'
+                              : 'bg-[#FDF3EA] text-[#C87428] border border-[#F7D4B8]'
                           }`}
                         >
                           {scenario.severity} Severity
                         </span>
                         {isApplied && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EBF5EE] text-[#2D7A4D] border border-[#C6E7D2] flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" /> Injected
                           </span>
                         )}
                       </div>
 
-                      <span className="text-xs text-slate-500 font-mono">
+                      <span className="text-xs text-[#8F8A80] font-mono">
                         {scenario.type.replace('_', ' ').toUpperCase()}
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-bold text-slate-100 mt-2">
+                    <h4 className="text-xs font-bold text-[#181816] mt-2">
                       {scenario.title}
                     </h4>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-[11px] text-[#636059] mt-1">
                       {scenario.description}
                     </p>
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-slate-400">
+                    <div className="mt-3 pt-2.5 border-t border-[#EDE7DC] flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-[#8F8A80]">
                         {scenario.impactSummary.slice(0, 45)}...
                       </span>
                       <button
@@ -168,10 +167,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                           e.stopPropagation();
                           onApplyScenario(scenario.id);
                         }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${
                           isApplied
-                            ? 'bg-slate-800 text-slate-400'
-                            : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                            ? 'bg-[#F3EEE7] text-[#636059]'
+                            : 'bg-[#181816] hover:bg-[#2C2B27] text-white shadow-xs'
                         }`}
                       >
                         {isApplied ? 'Re-apply' : 'Inject Disruption'}
@@ -184,18 +183,18 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
           </div>
 
           {/* Custom Train Delay Injector */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
-            <h4 className="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
+            <h4 className="text-xs font-bold text-[#181816] mb-2 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#C87428]" />
               Manual Train Delay Injector
             </h4>
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div>
-                <label className="text-[10px] text-slate-400 block mb-1">Select Train</label>
+                <label className="text-[10px] text-[#8F8A80] font-bold block mb-1 uppercase">Select Train</label>
                 <select
                   value={customTrainNumber}
                   onChange={e => setCustomTrainNumber(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl px-2.5 py-1.5 text-xs text-[#181816] focus:outline-none"
                 >
                   {trains.map(t => (
                     <option key={t.number} value={t.number}>
@@ -205,11 +204,11 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 </select>
               </div>
               <div>
-                <label className="text-[10px] text-slate-400 block mb-1">Delay (Minutes)</label>
+                <label className="text-[10px] text-[#8F8A80] font-bold block mb-1 uppercase">Delay (Minutes)</label>
                 <select
                   value={customDelay}
                   onChange={e => setCustomDelay(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#FAF7F2] border border-[#E6E0D4] rounded-xl px-2.5 py-1.5 text-xs text-[#181816] focus:outline-none"
                 >
                   <option value={15}>+15 Mins Delay</option>
                   <option value={30}>+30 Mins Delay</option>
@@ -229,7 +228,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                   onApplyScenario(scenarios[0].id);
                 }
               }}
-              className="w-full py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+              className="w-full py-2.5 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition"
             >
               Apply Delay to {customTrainNumber}
             </button>
@@ -238,15 +237,15 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
 
         {/* Right Column: AI Dynamic Re-Plan & Impact Analysis (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-indigo-300 font-mono">
+                  <span className="text-xs font-bold text-[#C87428] font-mono">
                     Scenario Active: {activeScenario?.title}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white mt-0.5">
+                <h3 className="text-base font-bold text-[#181816] mt-0.5">
                   AI Conflict Detection & Dynamic Re-Plan Engine
                 </h3>
               </div>
@@ -255,7 +254,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 id="btn-trigger-ai-replan"
                 onClick={() => handleRunReplan(activeScenario)}
                 disabled={isReplanning}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-600/20 border border-indigo-400/30 transition disabled:opacity-50 active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-white text-xs font-bold shadow-sm transition disabled:opacity-50 active:scale-95"
               >
                 {isReplanning ? (
                   <>
@@ -264,7 +263,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-indigo-200" />
+                    <Sparkles className="w-4 h-4 text-[#C87428]" />
                     Run Dynamic Re-Plan
                   </>
                 )}
@@ -272,21 +271,21 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             </div>
 
             {/* Impact Details Card */}
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 mb-4">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4 text-rose-400" />
+            <div className="bg-[#FAF7F2] p-4 rounded-2xl border border-[#E6E0D4] mb-4">
+              <h4 className="text-xs font-bold text-[#C53030] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <ShieldAlert className="w-4 h-4" />
                 Live Disruption Analysis
               </h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-[#636059] leading-relaxed">
                 {activeScenario?.impactSummary}
               </p>
 
               {/* Safety Hierarchy reminder */}
-              <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                <span className="font-semibold text-indigo-300">
+              <div className="mt-3 pt-3 border-t border-[#EDE7DC] flex items-center justify-between text-[11px] text-[#636059]">
+                <span className="font-semibold text-[#181816]">
                   Priority Constraint Order:
                 </span>
-                <span className="font-mono text-slate-300">
+                <span className="font-mono text-[#636059]">
                   1. SAFETY &gt; 2. URGENCY &gt; 3. AVAILABILITY &gt; 4. DISRUPTION
                 </span>
               </div>
@@ -294,32 +293,32 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
 
             {/* AI Re-plan Recommendation Output */}
             {replanAdvice ? (
-              <div className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl p-5 text-xs shadow-inner">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-emerald-500/30">
-                  <div className="flex items-center gap-2 text-emerald-400 font-bold">
+              <div className="bg-[#EBF5EE] border border-[#C6E7D2] rounded-2xl p-5 text-xs shadow-inner">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#C6E7D2]">
+                  <div className="flex items-center gap-2 text-[#2D7A4D] font-bold">
                     <ShieldCheck className="w-4 h-4" />
                     Optimized Dynamic Re-Plan Approved by CP-SAT Engine
                   </div>
-                  <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-white text-[#2D7A4D] border border-[#C6E7D2]">
                     Feasibility: 96%
                   </span>
                 </div>
 
-                <div className="whitespace-pre-line font-sans text-slate-200 text-xs leading-relaxed">
+                <div className="whitespace-pre-line font-sans text-[#181816] text-xs leading-relaxed">
                   {replanAdvice}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-emerald-500/30 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">
+                <div className="mt-4 pt-3 border-t border-[#C6E7D2] flex items-center justify-between">
+                  <span className="text-[11px] text-[#636059]">
                     Auto-generated Circular Notice draft updated.
                   </span>
-                  <span className="text-emerald-400 font-bold text-xs flex items-center gap-1">
+                  <span className="text-[#2D7A4D] font-bold text-xs flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4" /> Ready for Section Controller Sanction
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="p-8 text-center bg-slate-950/50 rounded-xl border border-dashed border-slate-800 text-slate-400">
+              <div className="p-8 text-center bg-[#FAF7F2] rounded-2xl border border-dashed border-[#E6E0D4] text-[#8F8A80]">
                 <p className="text-xs">
                   Click <strong>"Run Dynamic Re-Plan"</strong> to generate the constraint-optimized schedule shift, track regulation, and safety clearance advice.
                 </p>

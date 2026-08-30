@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Corridor, BlockWindow, Train, Requisition } from '../types';
-import { Sparkles, Send, Bot, User, X, ShieldCheck, Zap, HelpCircle, Loader2 } from 'lucide-react';
+import { Sparkles, Send, Bot, User, X, Loader2 } from 'lucide-react';
 
 interface CopilotModalProps {
   isOpen: boolean;
@@ -130,22 +130,22 @@ For **${query}**:
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-end">
-      <div className="bg-slate-900 border-l border-slate-700 w-full max-w-xl h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-end">
+      <div className="bg-white border-l border-[#E6E0D4] w-full max-w-xl h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200 text-[#181816]">
         {/* Drawer Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/90">
+        <div className="p-6 border-b border-[#EDE7DC] flex items-center justify-between bg-[#FAF7F2]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">
-              <Sparkles className="w-5 h-5" />
+            <div className="p-2.5 rounded-2xl bg-[#F3EEE7] border border-[#E6E0D4] text-[#181816]">
+              <Sparkles className="w-5 h-5 text-[#C87428]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[#181816] flex items-center gap-2">
                 RailAI Copilot
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
-                  Gemini 3.7 Powered
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#181816] text-white font-bold">
+                  Gemini 2.5 Flash
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#636059]">
                 Indian Railways Traffic Controller & Engineering Decision Assistant
               </p>
             </div>
@@ -153,14 +153,14 @@ For **${query}**:
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-2 rounded-full text-[#8F8A80] hover:text-[#181816] hover:bg-[#F3EEE7] transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Messages List */}
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#FAF7F2]/50">
           {messages.map(msg => (
             <div
               key={msg.id}
@@ -169,16 +169,16 @@ For **${query}**:
               }`}
             >
               {msg.sender === 'ai' && (
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 mt-0.5">
-                  <Bot className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-full bg-[#181816] flex items-center justify-center text-white shrink-0 mt-0.5 shadow-xs">
+                  <Bot className="w-4 h-4 text-[#C87428]" />
                 </div>
               )}
 
               <div
-                className={`p-4 rounded-2xl max-w-[85%] ${
+                className={`p-4 rounded-3xl max-w-[85%] ${
                   msg.sender === 'user'
-                    ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-medium shadow-md shadow-indigo-600/20'
-                    : 'bg-slate-950 border border-slate-800/80 text-slate-200 shadow-md'
+                    ? 'bg-[#181816] text-[#FAF7F2] font-medium shadow-xs'
+                    : 'bg-white border border-[#E6E0D4] text-[#181816] shadow-xs'
                 }`}
               >
                 <div className="whitespace-pre-line font-sans">
@@ -186,11 +186,11 @@ For **${query}**:
                 </div>
 
                 {msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-col gap-1 text-[11px] text-indigo-300 font-medium">
-                    <span className="text-slate-400 font-semibold">Recommended Actions:</span>
+                  <div className="mt-3 pt-2.5 border-t border-[#EDE7DC] flex flex-col gap-1 text-[11px] text-[#C87428] font-medium">
+                    <span className="text-[#8F8A80] font-bold uppercase text-[10px]">Recommended Actions:</span>
                     {msg.suggestedActions.map((action, i) => (
-                      <div key={i} className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"></span>
+                      <div key={i} className="flex items-center gap-1.5 text-[#181816]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C87428] inline-block"></span>
                         <span>{action}</span>
                       </div>
                     ))}
@@ -199,7 +199,7 @@ For **${query}**:
 
                 <div
                   className={`text-[9px] mt-1.5 ${
-                    msg.sender === 'user' ? 'text-indigo-200 text-right' : 'text-slate-500'
+                    msg.sender === 'user' ? 'text-[#8F8A80] text-right' : 'text-[#8F8A80]'
                   }`}
                 >
                   {msg.timestamp}
@@ -207,7 +207,7 @@ For **${query}**:
               </div>
 
               {msg.sender === 'user' && (
-                <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300 shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-full bg-[#F3EEE7] border border-[#E6E0D4] flex items-center justify-center text-[#181816] shrink-0 mt-0.5">
                   <User className="w-4 h-4" />
                 </div>
               )}
@@ -216,10 +216,10 @@ For **${query}**:
 
           {isLoading && (
             <div className="flex gap-3 text-xs justify-start">
-              <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="w-8 h-8 rounded-full bg-[#181816] flex items-center justify-center text-white shrink-0">
+                <Loader2 className="w-4 h-4 animate-spin text-[#C87428]" />
               </div>
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-slate-400 italic">
+              <div className="p-4 rounded-3xl bg-white border border-[#E6E0D4] text-[#636059] italic shadow-xs">
                 RailAI is analyzing corridor headway, machine resources & safety rules...
               </div>
             </div>
@@ -227,12 +227,12 @@ For **${query}**:
         </div>
 
         {/* Quick Suggestion Chips */}
-        <div className="p-3.5 border-t border-slate-800 bg-slate-950/60 flex flex-wrap gap-2">
+        <div className="p-4 border-t border-[#EDE7DC] bg-white flex flex-wrap gap-2">
           {quickPrompts.map((prompt, i) => (
             <button
               key={i}
               onClick={() => handleSend(prompt)}
-              className="text-[11px] text-slate-300 bg-slate-800/80 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-full border border-slate-700 hover:border-indigo-500 transition"
+              className="text-[11px] text-[#636059] bg-[#FAF7F2] hover:bg-[#181816] hover:text-white px-3.5 py-1.5 rounded-full border border-[#E6E0D4] transition shadow-xs"
             >
               {prompt}
             </button>
@@ -240,7 +240,7 @@ For **${query}**:
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950">
+        <div className="p-4 border-t border-[#EDE7DC] bg-[#FAF7F2]">
           <form
             onSubmit={e => {
               e.preventDefault();
@@ -253,14 +253,14 @@ For **${query}**:
               placeholder="Ask RailAI about block feasibility, train delays, or safety..."
               value={inputQuery}
               onChange={e => setInputQuery(e.target.value)}
-              className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition"
+              className="flex-1 bg-white border border-[#E6E0D4] rounded-full px-5 py-3 text-xs text-[#181816] placeholder:text-[#8F8A80] focus:outline-none focus:ring-2 focus:ring-[#181816] transition"
             />
             <button
               type="submit"
               disabled={isLoading || !inputQuery.trim()}
-              className="p-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold transition disabled:opacity-40 shadow-md shadow-indigo-600/20 active:scale-95"
+              className="p-3.5 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-white font-bold transition disabled:opacity-40 shadow-xs active:scale-95"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-4 h-4 text-[#FAF7F2]" />
             </button>
           </form>
         </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Corridor, BlockWindow, Approvals, SafetyChecklist } from '../types';
-import { ShieldCheck, CheckCircle2, AlertCircle, FileText, Printer, Copy, Check, Sparkles, UserCheck, Lock, AlertTriangle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, FileText, Copy, Check, Sparkles, UserCheck, Lock, AlertTriangle } from 'lucide-react';
 
 interface ApprovalWorkflowProps {
   corridor: Corridor;
@@ -13,17 +13,17 @@ export const ApprovalWorkflow: React.FC<ApprovalWorkflowProps> = ({
   activeBlock,
   onUpdateApprovals
 }) => {
-  const [controllerName, setControllerName] = useState('R. K. Sharma (Sr. DOM / Chief Controller)');
+  const [controllerName] = useState('R. K. Sharma (Sr. DOM / Chief Controller)');
   const [copied, setCopied] = useState(false);
   const [isGeneratingMemo, setIsGeneratingMemo] = useState(false);
   const [customMemoText, setCustomMemoText] = useState<string | null>(null);
 
   if (!activeBlock) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center text-slate-400">
-        <ShieldCheck className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-        <h3 className="text-base font-bold text-slate-200">No Block Selected for Sanction</h3>
-        <p className="text-xs text-slate-400 mt-1">Please select an integrated block from the String Diagram or Optimizer view to initiate the advisory validation and safety clearance workflow.</p>
+      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-8 text-center text-[#636059]">
+        <ShieldCheck className="w-10 h-10 mx-auto text-[#8F8A80] mb-2" />
+        <h3 className="text-base font-bold text-[#181816]">No Block Selected for Sanction</h3>
+        <p className="text-xs text-[#636059] mt-1">Please select an integrated block from the String Diagram or Optimizer view to initiate the advisory validation and safety clearance workflow.</p>
       </div>
     );
   }
@@ -118,32 +118,32 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
   };
 
   return (
-    <div id="approval-workflow" className="flex flex-col gap-6">
+    <div id="approval-workflow" className="flex flex-col gap-6 text-[#181816]">
       {/* Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-[#EBF5EE] text-[#2D7A4D] border border-[#C6E7D2]">
                 Selection-Safe Advisory Boundary
               </span>
-              <span className="text-xs text-slate-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+              <span className="text-xs text-[#636059] font-mono bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">
                 Fail-Safe & Traceable Governance
               </span>
             </div>
-            <h2 className="text-lg font-bold text-white mt-1.5">
+            <h2 className="text-lg font-bold text-[#181816] mt-1.5 font-cinzel">
               Safety Verification & Controller Sanction Workflow
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#636059]">
               RailAI advises and coordinates optimal windows; authorized railway engineers validate multi-departmental safety clearances, and Section Controller provides the final legal sanction.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className={`px-3.5 py-2 rounded-xl text-xs font-bold font-mono border shadow-sm ${
+            <span className={`px-4 py-2 rounded-full text-xs font-bold font-mono border shadow-xs ${
               isFullyApproved
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                ? 'bg-[#EBF5EE] text-[#2D7A4D] border-[#C6E7D2]'
+                : 'bg-[#FDF3EA] text-[#C87428] border-[#F7D4B8]'
             }`}>
               {isFullyApproved ? '✓ SANCTIONED & ACTIVE' : 'PENDING 4-PARTY CLEARANCE'}
             </span>
@@ -156,31 +156,31 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
         {/* Left Column: Multi-Department Signoffs & Safety Checklist (6 cols) */}
         <div className="lg:col-span-6 flex flex-col gap-4">
           {/* Departmental Validation Cards */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
-            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-indigo-400" />
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#181816] mb-3 flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-[#C87428]" />
               Multi-Departmental Validation (Human-in-the-Loop)
             </h3>
 
             <div className="flex flex-col gap-3">
               {/* P-Way Signoff */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between gap-3 shadow-inner">
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] flex items-center justify-between gap-3 shadow-xs">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-indigo-300">Engineering (P-Way)</span>
-                    <span className="text-[10px] text-slate-400 font-mono">SSE / Track Machine</span>
+                    <span className="text-xs font-bold text-[#181816]">Engineering (P-Way)</span>
+                    <span className="text-[10px] text-[#8F8A80] font-mono">SSE / Track Machine</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-[#636059] mt-0.5">
                     CSM 09-32 tamping crew & track master availability verified.
                   </p>
                 </div>
                 <button
                   id="btn-toggle-pway-approval"
                   onClick={() => handleToggleApproval('pwayApproved')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 ${
                     approvals.pwayApproved
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      ? 'bg-[#2D7A4D] text-white shadow-xs'
+                      : 'bg-[#F3EEE7] text-[#636059] hover:bg-[#EAE4D9]'
                   }`}
                 >
                   {approvals.pwayApproved ? <Check className="w-3.5 h-3.5" /> : null}
@@ -189,23 +189,23 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
               </div>
 
               {/* TRD Electrical Signoff */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between gap-3 shadow-inner">
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] flex items-center justify-between gap-3 shadow-xs">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-blue-300">Electrical Traction (TRD)</span>
-                    <span className="text-[10px] text-slate-400 font-mono">Chief Traction Foreman</span>
+                    <span className="text-xs font-bold text-[#2B5C8F]">Electrical Traction (TRD)</span>
+                    <span className="text-[10px] text-[#8F8A80] font-mono">Chief Traction Foreman</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-[#636059] mt-0.5">
                     25kV OHE isolation plan & Tower Wagon TW-402 confirmed.
                   </p>
                 </div>
                 <button
                   id="btn-toggle-trd-approval"
                   onClick={() => handleToggleApproval('trdApproved')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 ${
                     approvals.trdApproved
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      ? 'bg-[#2D7A4D] text-white shadow-xs'
+                      : 'bg-[#F3EEE7] text-[#636059] hover:bg-[#EAE4D9]'
                   }`}
                 >
                   {approvals.trdApproved ? <Check className="w-3.5 h-3.5" /> : null}
@@ -214,23 +214,23 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
               </div>
 
               {/* S&T Signal Signoff */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between gap-3 shadow-inner">
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] flex items-center justify-between gap-3 shadow-xs">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-emerald-300">Signaling & Telecom (S&T)</span>
-                    <span className="text-[10px] text-slate-400 font-mono">Section Signal Inspector</span>
+                    <span className="text-xs font-bold text-[#2D7A4D]">Signaling & Telecom (S&T)</span>
+                    <span className="text-[10px] text-[#8F8A80] font-mono">Section Signal Inspector</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-[#636059] mt-0.5">
                     Point machine 104A disconnection memo Form-102 prepared.
                   </p>
                 </div>
                 <button
                   id="btn-toggle-st-approval"
                   onClick={() => handleToggleApproval('stApproved')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 ${
                     approvals.stApproved
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      ? 'bg-[#2D7A4D] text-white shadow-xs'
+                      : 'bg-[#F3EEE7] text-[#636059] hover:bg-[#EAE4D9]'
                   }`}
                 >
                   {approvals.stApproved ? <Check className="w-3.5 h-3.5" /> : null}
@@ -239,25 +239,25 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
               </div>
 
               {/* Chief Section Controller Final Sanction */}
-              <div className="p-4 rounded-xl bg-indigo-950/20 border border-indigo-500/40 flex items-center justify-between gap-3 mt-1 shadow-md">
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#181816] flex items-center justify-between gap-3 mt-1 shadow-xs">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-indigo-300">Chief Operations Controller (Sr. DOM)</span>
-                    <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-mono font-bold border border-indigo-500/30">
+                    <span className="text-xs font-bold text-[#181816]">Chief Operations Controller (Sr. DOM)</span>
+                    <span className="text-[10px] bg-[#181816] text-white px-2 py-0.5 rounded-full font-mono font-bold">
                       FINAL SANCTION
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-[#636059] mt-0.5">
                     Authorizes line occupation, Caution Order T/409 & Station Master notification.
                   </p>
                 </div>
                 <button
                   id="btn-toggle-chief-controller-approval"
                   onClick={() => handleToggleApproval('chiefControllerApproved')}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md ${
+                  className={`px-5 py-2.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 shadow-sm ${
                     approvals.chiefControllerApproved
-                      ? 'bg-emerald-500 text-slate-950 font-bold'
-                      : 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white'
+                      ? 'bg-[#2D7A4D] text-white font-bold'
+                      : 'bg-[#181816] hover:bg-[#2C2B27] text-white'
                   }`}
                 >
                   {approvals.chiefControllerApproved ? <ShieldCheck className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
@@ -268,69 +268,69 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
           </div>
 
           {/* Hard Safety Checklist */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
-            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#181816] mb-3 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#C87428]" />
               Hard Safety Rules & Physical Isolation Checklist
             </h3>
 
             <div className="flex flex-col gap-2.5 text-xs">
               <label
                 onClick={() => handleToggleChecklist('oheIsolated')}
-                className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] cursor-pointer hover:border-[#181816]/40 transition"
               >
                 <input
                   type="checkbox"
                   checked={checklist.oheIsolated}
                   readOnly
-                  className="rounded text-indigo-600 focus:ring-0"
+                  className="rounded text-[#181816] focus:ring-0"
                 />
-                <span className="text-slate-200">
+                <span className="text-[#181816]">
                   <strong>25kV OHE Power Isolation:</strong> Section de-energized & certified by Traction Power Controller (TPC).
                 </span>
               </label>
 
               <label
                 onClick={() => handleToggleChecklist('earthDischarged')}
-                className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] cursor-pointer hover:border-[#181816]/40 transition"
               >
                 <input
                   type="checkbox"
                   checked={checklist.earthDischarged}
                   readOnly
-                  className="rounded text-indigo-600 focus:ring-0"
+                  className="rounded text-[#181816] focus:ring-0"
                 />
-                <span className="text-slate-200">
+                <span className="text-[#181816]">
                   <strong>Earthing Discharge Rods:</strong> Clamped and locked on both ends of the work zone (Km {activeBlock.startKm} & {activeBlock.endKm}).
                 </span>
               </label>
 
               <label
                 onClick={() => handleToggleChecklist('stMemoReceived')}
-                className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] cursor-pointer hover:border-[#181816]/40 transition"
               >
                 <input
                   type="checkbox"
                   checked={checklist.stMemoReceived}
                   readOnly
-                  className="rounded text-indigo-600 focus:ring-0"
+                  className="rounded text-[#181816] focus:ring-0"
                 />
-                <span className="text-slate-200">
+                <span className="text-[#181816]">
                   <strong>S&T Disconnection Notice (Form S&T-102):</strong> Duly served and acknowledged by Station Master.
                 </span>
               </label>
 
               <label
                 onClick={() => handleToggleChecklist('cautionOrderIssued')}
-                className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition"
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] cursor-pointer hover:border-[#181816]/40 transition"
               >
                 <input
                   type="checkbox"
                   checked={checklist.cautionOrderIssued}
                   readOnly
-                  className="rounded text-indigo-600 focus:ring-0"
+                  className="rounded text-[#181816] focus:ring-0"
                 />
-                <span className="text-slate-200">
+                <span className="text-[#181816]">
                   <strong>Caution Order (T/409):</strong> 30 km/h speed restriction programmed for adjacent track train drivers.
                 </span>
               </label>
@@ -340,11 +340,11 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
 
         {/* Right Column: Official Indian Railways Circular Notice Memo (6 cols) */}
         <div className="lg:col-span-6 flex flex-col gap-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col h-full shadow-xl backdrop-blur-sm">
+          <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 flex flex-col h-full shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-sm font-bold text-white">
+                <FileText className="w-4 h-4 text-[#C87428]" />
+                <h3 className="text-sm font-bold text-[#181816]">
                   Digital Block Permission Circular Notice
                 </h3>
               </div>
@@ -354,34 +354,34 @@ TIMESTAMP: ${approvals.timestamp || 'Pending Chief Sanction'}`;
                   id="btn-draft-memo-ai"
                   onClick={handleGenerateOfficialMemo}
                   disabled={isGeneratingMemo}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                  {isGeneratingMemo ? 'Drafting...' : 'Re-Draft Memo with AI'}
+                  <Sparkles className="w-3.5 h-3.5 text-[#C87428]" />
+                  {isGeneratingMemo ? 'Drafting...' : 'Re-Draft with AI'}
                 </button>
 
                 <button
                   id="btn-copy-memo"
                   onClick={handleCopyMemo}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+                  className="flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-[#2D7A4D]" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
             </div>
 
             {/* Official Monospace Memo Paper */}
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto whitespace-pre-wrap flex-1 shadow-inner select-text">
+            <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#E6E0D4] font-mono text-[11px] leading-relaxed text-[#181816] overflow-x-auto whitespace-pre-wrap flex-1 shadow-inner select-text">
               {currentMemo}
             </div>
 
             {/* Verification Stamp Footer */}
-            <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <div className="mt-3 pt-3 border-t border-[#EDE7DC] flex items-center justify-between text-xs text-[#636059]">
               <span className="font-mono text-[11px]">
-                Cryptographic Audit Hash: IR-SHA256-{Math.random().toString(36).substring(2, 10).toUpperCase()}
+                Audit Hash: IR-SHA256-{Math.random().toString(36).substring(2, 10).toUpperCase()}
               </span>
-              <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="text-[#2D7A4D] font-semibold flex items-center gap-1">
                 <ShieldCheck className="w-4 h-4" /> Traceable Decision Record
               </span>
             </div>
