@@ -31,7 +31,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSpeedChange,
   simSpeed,
   onOpenCopilot,
-  conflictCount
+  conflictCount,
+  pendingProposalCount
 }) => {
   return (
     <header id="app-header" className="bg-slate-950/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
