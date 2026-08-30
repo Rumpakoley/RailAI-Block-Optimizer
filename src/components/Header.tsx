@@ -52,12 +52,6 @@ export const Header: React.FC<HeaderProps> = ({
               <h1 className="text-base font-cinzel font-bold tracking-widest text-[#181816] uppercase">
                 RailAI Block Optimizer
               </h1>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#C87428] text-white tracking-wider uppercase font-mono shadow-xs">
-                SIH 2025 PS-26027
-              </span>
-              <span className="text-[10px] text-[#636059] font-mono hidden sm:inline-block bg-[#F3EEE7] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">
-                Team NeuralNerds
-              </span>
             </div>
             <p className="text-[11px] text-[#636059] font-medium tracking-wide">
               AI-Powered Automatic Block Planning to Maximize Asset Availability for Train Operations on Indian Railways
