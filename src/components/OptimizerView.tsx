@@ -102,7 +102,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-[#C87428] text-white">
-                SIH PS-26027 Core Decision Engine
+                Core Decision Engine
               </span>
               <span className="text-xs text-[#636059] font-mono bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">Hybrid ML + CP-SAT Solver</span>
             </div>

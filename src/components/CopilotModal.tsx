@@ -31,7 +31,7 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({
     {
       id: 'msg-1',
       sender: 'ai',
-      text: `Greetings! I am **RailAI Copilot**, your Indian Railways Traffic & Block Planning Intelligent Assistant (SIH Problem Statement 26027).
+      text: `Greetings! I am **RailAI Copilot**, your Indian Railways Traffic & Block Planning Intelligent Assistant.
 
 I can assist with:
 - **CP-SAT & Heuristic Optimization Queries**: Explaining why a specific traffic trough was selected.

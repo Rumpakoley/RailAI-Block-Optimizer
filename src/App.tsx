@@ -736,7 +736,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#C87428]"></span>
             <span className="font-semibold text-[#181816]">
-              Smart India Hackathon 2025 • PS-26027: AI-Powered Automatic Block Planning for Indian Railways
+              Indian Railways • Intelligent Automatic Block Planning & Corridor Optimization System
             </span>
           </div>
           <span className="font-mono text-[#181816] text-[11px] bg-white px-3 py-1 rounded-full border border-[#E6E0D4]">
