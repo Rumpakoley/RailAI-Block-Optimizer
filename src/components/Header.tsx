@@ -1,7 +1,7 @@
 import React from 'react';
-import { Corridor } from '../types';
+import { Corridor, ManualModeState } from '../types';
 import { minutesToTime } from '../utils/timeUtils';
-import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, Users } from 'lucide-react';
+import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power } from 'lucide-react';
 
 interface HeaderProps {
   corridors: Corridor[];
@@ -17,6 +17,8 @@ interface HeaderProps {
   onOpenCopilot: () => void;
   conflictCount: number;
   pendingProposalCount?: number;
+  manualMode?: ManualModeState;
+  onOpenManualMode?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -32,7 +34,9 @@ export const Header: React.FC<HeaderProps> = ({
   simSpeed,
   onOpenCopilot,
   conflictCount,
-  pendingProposalCount
+  pendingProposalCount,
+  manualMode,
+  onOpenManualMode
 }) => {
   return (
     <header id="app-header" className="bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E6E0D4] sticky top-0 z-40">
@@ -112,6 +116,32 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
             </div>
           </div>
+
+          {/* Operating Mode Toggle / Indicator */}
+          {manualMode && (
+            <button
+              id="btn-mode-toggle"
+              onClick={onOpenManualMode}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border shadow-xs ${
+                manualMode.isManualMode
+                  ? 'bg-[#FDF2F2] text-[#C53030] border-[#F8D7D7] animate-pulse'
+                  : 'bg-[#EBF5EE] text-[#2D7A4D] border-[#C6E7D2] hover:bg-[#FAF7F2]'
+              }`}
+              title="Click to manage Adversity Contingency & Manual Override"
+            >
+              {manualMode.isManualMode ? (
+                <>
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#C53030]" />
+                  <span>MANUAL OVERRIDE</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-[#2D7A4D]"></span>
+                  <span>AI AUTO MODE</span>
+                </>
+              )}
+            </button>
+          )}
 
           {/* AI Copilot Trigger Button */}
           <button

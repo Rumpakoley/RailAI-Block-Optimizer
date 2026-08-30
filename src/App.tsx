@@ -9,7 +9,8 @@ import {
   Approvals, 
   SafetyChecklist, 
   ControllerAlterationProposal,
-  AIRescheduleOption 
+  AIRescheduleOption,
+  ManualModeState 
 } from './types';
 import { 
   INITIAL_CORRIDORS, 
@@ -21,6 +22,7 @@ import {
   INITIAL_PROPOSALS
 } from './data/mockData';
 import { Header } from './components/Header';
+import { AdversityManualModePanel } from './components/AdversityManualModePanel';
 import { StringDiagram } from './components/StringDiagram';
 import { OptimizerView } from './components/OptimizerView';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
@@ -475,6 +477,146 @@ export default function App() {
     setAuditLogs(prev => [resetLog, ...prev]);
   };
 
+  // Manual Adversity Mode State
+  const [manualMode, setManualMode] = useState<ManualModeState>({
+    isManualMode: false,
+    manualBlocksSuspended: false,
+    manualCautionOrderActive: false
+  });
+
+  const handleToggleManualMode = (enable: boolean, reason?: string, contingency?: string) => {
+    if (enable) {
+      setManualMode({
+        isManualMode: true,
+        activatedAt: new Date().toLocaleTimeString('en-IN') + ' IST',
+        activatedBy: 'R. K. Sharma (Section Controller)',
+        adversityReason: reason || 'Adversity & Contingency Event',
+        activeContingencyRule: contingency || 'Manual Dispatch & Verbal Authority',
+        manualBlocksSuspended: false,
+        manualCautionOrderActive: false
+      });
+
+      const log: AuditLogEntry = {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+        user: 'R. K. Sharma (Section Controller)',
+        action: 'Adversity Manual Override Engaged',
+        category: 'OPTIMIZATION',
+        details: `Automated AI block planning suspended due to adversity: "${reason}". Direct Section Controller dispatch active.`
+      };
+      setAuditLogs(prev => [log, ...prev]);
+    } else {
+      setManualMode({
+        isManualMode: false,
+        manualBlocksSuspended: false,
+        manualCautionOrderActive: false
+      });
+
+      // Restore base blocks & trains
+      setBlocks(INITIAL_BLOCKS);
+      setTrains(INITIAL_TRAINS);
+
+      const log: AuditLogEntry = {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+        user: 'R. K. Sharma (Section Controller)',
+        action: 'Handed Back to AI Automatic Mode',
+        category: 'OPTIMIZATION',
+        details: 'Adversity cleared. Resumed autonomous CP-SAT block planning and train schedule synchronization.'
+      };
+      setAuditLogs(prev => [log, ...prev]);
+    }
+  };
+
+  const handleEmergencySuspendBlocks = () => {
+    const nextSuspended = !manualMode.manualBlocksSuspended;
+    setManualMode(prev => ({ ...prev, manualBlocksSuspended: nextSuspended }));
+
+    if (nextSuspended) {
+      // Clear all active blocks to free up mainline tracks
+      setBlocks(prev => prev.map(b => ({
+        ...b,
+        status: 'candidate',
+        durationMinutes: 0,
+        algorithmNotes: 'EMERGENCY SUSPENDED: Mainline completely cleared for relief/contingency train passage.'
+      })));
+    } else {
+      setBlocks(INITIAL_BLOCKS);
+    }
+
+    const log: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: 'R. K. Sharma (Section Controller)',
+      action: nextSuspended ? 'Emergency Mainline Clearance Ordered' : 'Block Suspension Rescinded',
+      category: 'OPTIMIZATION',
+      details: nextSuspended 
+        ? 'All maintenance possessions immediately suspended. Track cleared for emergency/rescue movements.'
+        : 'Maintenance block readiness restored.'
+    };
+    setAuditLogs(prev => [log, ...prev]);
+  };
+
+  const handleToggleGlobalCautionOrder = () => {
+    const nextCaution = !manualMode.manualCautionOrderActive;
+    setManualMode(prev => ({ ...prev, manualCautionOrderActive: nextCaution }));
+
+    if (nextCaution) {
+      // Impose 30 km/h and +25 min buffer on all trains
+      setTrains(prev => prev.map(t => ({
+        ...t,
+        averageSpeedKmH: 30,
+        currentDelayMinutes: t.currentDelayMinutes + 25,
+        currentStatus: 'Running Late'
+      })));
+    } else {
+      setTrains(INITIAL_TRAINS);
+    }
+
+    const log: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: 'R. K. Sharma (Section Controller)',
+      action: nextCaution ? 'Universal Caution Order T/409 Imposed' : 'Caution Order T/409 Cancelled',
+      category: 'APPROVAL',
+      details: nextCaution 
+        ? '30 km/h maximum speed restriction imposed across entire corridor due to operational adversity.'
+        : 'Normal section sectional speeds restored.'
+    };
+    setAuditLogs(prev => [log, ...prev]);
+  };
+
+  const handleManualShiftBlock = (blockId: string, newStart: string, newEnd: string, newLine: 'UP MAIN' | 'DOWN MAIN' | 'BOTH LINES') => {
+    setBlocks(prev => prev.map(b => {
+      if (b.id === blockId || prev[0]?.id === blockId) {
+        return {
+          ...b,
+          startTime: newStart,
+          endTime: newEnd,
+          lineType: newLine,
+          durationMinutes: 180,
+          confidenceScore: 100,
+          algorithmNotes: `Direct manual schedule shift by Section Controller during adversity (${newStart}-${newEnd} on ${newLine}).`
+        };
+      }
+      return b;
+    }));
+
+    const log: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: 'R. K. Sharma (Section Controller)',
+      action: 'Direct Manual Block Adjustment Applied',
+      category: 'OPTIMIZATION',
+      details: `Shifted Block ${blockId} manually to ${newStart} - ${newEnd} on ${newLine}. Manual override committed.`
+    };
+    setAuditLogs(prev => [log, ...prev]);
+  };
+
+  const handleGeneratePaperAuthority = () => {
+    setActiveTab('APPROVAL');
+  };
+
   const pendingProposalCount = proposals.filter(p => p.status === 'pending_consensus').length;
 
   return (
@@ -494,6 +636,8 @@ export default function App() {
         onOpenCopilot={() => setIsCopilotOpen(true)}
         conflictCount={conflictCount}
         pendingProposalCount={pendingProposalCount}
+        manualMode={manualMode}
+        onOpenManualMode={() => handleToggleManualMode(!manualMode.isManualMode, 'Adverse Operations / Signalling Breakdown')}
       />
 
       {/* Global Inter-Station Notification Banner */}
@@ -506,6 +650,18 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+        {/* Adversity & Manual Mode Control Panel */}
+        <AdversityManualModePanel
+          manualMode={manualMode}
+          corridor={selectedCorridor}
+          blocks={blocks}
+          trains={trains}
+          onToggleManualMode={handleToggleManualMode}
+          onEmergencySuspendBlocks={handleEmergencySuspendBlocks}
+          onToggleGlobalCautionOrder={handleToggleGlobalCautionOrder}
+          onManualShiftBlock={handleManualShiftBlock}
+          onGeneratePaperAuthority={handleGeneratePaperAuthority}
+        />
         {activeTab === 'STRING_GRAPH' && (
           <StringDiagram
             corridor={selectedCorridor}

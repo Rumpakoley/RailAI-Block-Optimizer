@@ -261,3 +261,17 @@ export interface ControllerAlterationProposal {
   rejectionReason?: string;
 }
 
+export type OperatingMode = 'AI_AUTOMATIC' | 'MANUAL_OVERRIDE';
+
+export interface ManualModeState {
+  isManualMode: boolean;
+  activatedAt?: string;
+  activatedBy?: string;
+  adversityReason?: string;
+  activeContingencyRule?: string;
+  manualSpeedCapKmH?: number;
+  manualBlocksSuspended: boolean;
+  manualCautionOrderActive: boolean;
+}
+
+
