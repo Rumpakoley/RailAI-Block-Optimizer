@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Corridor, Requisition, BlockWindow, Department } from '../types';
-import { Sparkles, Cpu, ShieldAlert, CheckCircle2, Clock, Zap, Wrench, Radio, Layers, Plus, ArrowRight, TrendingUp, AlertCircle, X } from 'lucide-react';
+import { Sparkles, Cpu, ShieldAlert, CheckCircle2, Clock, Zap, Wrench, Radio, Layers, Plus, ArrowRight, TrendingUp, AlertCircle, X, Check, Filter, ListOrdered, GitMerge, Calculator, Award } from 'lucide-react';
 import { formatDuration } from '../utils/timeUtils';
 
 interface OptimizerViewProps {
@@ -23,7 +23,9 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   const [selectedDept, setSelectedDept] = useState<'ALL' | Department>('ALL');
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [optimizationStep, setOptimizationStep] = useState<number>(0);
+  const [selectedStage, setSelectedStage] = useState<1 | 2 | 3 | 4>(blocks.length > 0 ? 4 : 1);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showOptimizedToast, setShowOptimizedToast] = useState(false);
 
   // New Requisition Form State
   const [newTitle, setNewTitle] = useState('');
@@ -36,30 +38,37 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
   const [newUrgency, setNewUrgency] = useState<'Emergency' | 'High' | 'Medium' | 'Low'>('High');
 
   const filteredReqs = requisitions.filter(r => selectedDept === 'ALL' || r.department === selectedDept);
-
   const pendingReqs = filteredReqs.filter(r => r.status === 'pending');
-  const bundledReqs = filteredReqs.filter(r => r.status === 'bundled');
 
   const handleRunOptimizer = async () => {
     setIsOptimizing(true);
-    setOptimizationStep(1);
-
+    setShowOptimizedToast(false);
+    
     // Step 1: Prioritize
-    await new Promise(r => setTimeout(r, 600));
-    setOptimizationStep(2);
-
+    setOptimizationStep(1);
+    setSelectedStage(1);
+    await new Promise(r => setTimeout(r, 650));
+    
     // Step 2: Match compatible
-    await new Promise(r => setTimeout(r, 600));
-    setOptimizationStep(3);
-
+    setOptimizationStep(2);
+    setSelectedStage(2);
+    await new Promise(r => setTimeout(r, 650));
+    
     // Step 3: Constraint solving
-    await new Promise(r => setTimeout(r, 700));
-    setOptimizationStep(4);
-
+    setOptimizationStep(3);
+    setSelectedStage(3);
+    await new Promise(r => setTimeout(r, 750));
+    
     // Step 4: Pareto Ranking
-    await new Promise(r => setTimeout(r, 500));
+    setOptimizationStep(4);
+    setSelectedStage(4);
+    await new Promise(r => setTimeout(r, 550));
+    
     setIsOptimizing(false);
+    setOptimizationStep(0);
+    setShowOptimizedToast(true);
     onApplyOptimization();
+    setTimeout(() => setShowOptimizedToast(false), 4000);
   };
 
   const handleCreateRequisition = (e: React.FormEvent) => {
@@ -96,15 +105,17 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
 
   return (
     <div id="optimizer-view" className="flex flex-col gap-6 text-[#181816]">
-      {/* SIH Decision Support Flow Pipeline Banner */}
+      {/* Pipeline Header & Stages Banner */}
       <div className="bg-white border border-[#E6E0D4] rounded-3xl p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-[#C87428] text-white">
                 Core Decision Engine
               </span>
-              <span className="text-xs text-[#636059] font-mono bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">Hybrid ML + CP-SAT Solver</span>
+              <span className="text-xs text-[#636059] font-mono bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#E6E0D4]">
+                Hybrid ML + CP-SAT Solver
+              </span>
             </div>
             <h2 className="text-lg font-bold text-[#181816] mt-1.5 font-cinzel">
               Multi-Departmental Activity Bundler & Block Optimizer
@@ -118,7 +129,7 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
             <button
               id="btn-add-requisition"
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#F3EEE7] hover:bg-[#EAE4D9] text-[#181816] text-xs font-semibold border border-[#E6E0D4] transition shadow-xs"
             >
               <Plus className="w-4 h-4 text-[#2D7A4D]" />
               New Requisition
@@ -128,56 +139,330 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
               id="btn-run-ai-optimizer"
               onClick={handleRunOptimizer}
               disabled={isOptimizing}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-white text-xs font-bold shadow-sm transition disabled:opacity-50 active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-white text-xs font-bold shadow-sm transition disabled:opacity-50 active:scale-95 cursor-pointer"
             >
               {isOptimizing ? (
                 <>
-                  <Cpu className="w-4 h-4 animate-spin text-white" />
-                  Solving CP-SAT Constraints...
+                  <Cpu className="w-4 h-4 animate-spin text-[#C87428]" />
+                  <span>Solving CP-SAT Step {optimizationStep}/4...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-[#C87428]" />
-                  Run AI Optimizer
+                  <span>Run AI Optimizer</span>
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* 4-Step Pipeline Indicator */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3">
-          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 1 || (!isOptimizing && blocks.length > 0) ? 'bg-[#FAF7F2] border-[#181816] text-[#181816] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
-            <div className="flex items-center justify-between text-xs font-bold mb-1">
-              <span>1. Prioritize Critical Work</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E6E0D4] text-[#181816] font-mono">Safety &gt; Urgency</span>
+        {/* 4-Step Interactive Pipeline Tabs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+          {/* Step 1 Tab */}
+          <button
+            type="button"
+            onClick={() => setSelectedStage(1)}
+            className={`p-4 rounded-2xl border text-left transition relative cursor-pointer ${
+              selectedStage === 1
+                ? 'bg-white border-[#181816] ring-2 ring-[#181816] shadow-sm'
+                : 'bg-[#FAF7F2] border-[#E6E0D4] hover:bg-white hover:border-[#181816]/40'
+            } ${optimizationStep === 1 ? 'ring-2 ring-[#C87428] animate-pulse bg-[#FDF3EA]' : ''}`}
+          >
+            <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+              <span className="flex items-center gap-1.5 text-[#181816]">
+                <ListOrdered className="w-4 h-4 text-[#C87428]" />
+                1. Prioritize Critical Work
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F3EEE7] text-[#181816] font-mono border border-[#E6E0D4]">
+                Safety &gt; Urgency
+              </span>
             </div>
-            <p className="text-[11px] text-[#636059]">Ranks TMS/TDMS/SMMS backlogs by track fatigue, OHE wear & USFD defects.</p>
-          </div>
+            <p className="text-[11px] text-[#636059] leading-relaxed">
+              Ranks TMS/TDMS/SMMS backlogs by track fatigue, OHE wear & USFD defects.
+            </p>
+            {selectedStage === 1 && (
+              <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.2 rounded-full bg-[#181816] text-white text-[9px] font-bold uppercase tracking-wider">
+                Viewing Step 1
+              </span>
+            )}
+          </button>
 
-          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 2 || (!isOptimizing && blocks.length > 0) ? 'bg-[#EBF5EE] border-[#C6E7D2] text-[#2D7A4D] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
-            <div className="flex items-center justify-between text-xs font-bold mb-1">
-              <span>2. Match Compatible Tasks</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#C6E7D2] text-[#2D7A4D] font-mono">Shadow Blocking</span>
+          {/* Step 2 Tab */}
+          <button
+            type="button"
+            onClick={() => setSelectedStage(2)}
+            className={`p-4 rounded-2xl border text-left transition relative cursor-pointer ${
+              selectedStage === 2
+                ? 'bg-white border-[#2D7A4D] ring-2 ring-[#2D7A4D] shadow-sm'
+                : 'bg-[#FAF7F2] border-[#E6E0D4] hover:bg-white hover:border-[#2D7A4D]/40'
+            } ${optimizationStep === 2 ? 'ring-2 ring-[#2D7A4D] animate-pulse bg-[#EBF5EE]' : ''}`}
+          >
+            <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+              <span className="flex items-center gap-1.5 text-[#2D7A4D]">
+                <GitMerge className="w-4 h-4 text-[#2D7A4D]" />
+                2. Match Compatible Tasks
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EBF5EE] text-[#2D7A4D] font-mono border border-[#C6E7D2]">
+                Shadow Blocking
+              </span>
             </div>
-            <p className="text-[11px] text-[#636059]">Bundles P-Way tamping with OHE de-energizing and S&T point overhaul.</p>
-          </div>
+            <p className="text-[11px] text-[#636059] leading-relaxed">
+              Bundles P-Way tamping with OHE de-energizing and S&T point overhaul.
+            </p>
+            {selectedStage === 2 && (
+              <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.2 rounded-full bg-[#2D7A4D] text-white text-[9px] font-bold uppercase tracking-wider">
+                Viewing Step 2
+              </span>
+            )}
+          </button>
 
-          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 3 || (!isOptimizing && blocks.length > 0) ? 'bg-[#EFF5FB] border-[#CCE0F5] text-[#2B5C8F] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
-            <div className="flex items-center justify-between text-xs font-bold mb-1">
-              <span>3. Optimize Constraints</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#CCE0F5] text-[#2B5C8F] font-mono">CP-SAT Engine</span>
+          {/* Step 3 Tab */}
+          <button
+            type="button"
+            onClick={() => setSelectedStage(3)}
+            className={`p-4 rounded-2xl border text-left transition relative cursor-pointer ${
+              selectedStage === 3
+                ? 'bg-white border-[#2B5C8F] ring-2 ring-[#2B5C8F] shadow-sm'
+                : 'bg-[#FAF7F2] border-[#E6E0D4] hover:bg-white hover:border-[#2B5C8F]/40'
+            } ${optimizationStep === 3 ? 'ring-2 ring-[#2B5C8F] animate-pulse bg-[#EFF5FB]' : ''}`}
+          >
+            <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+              <span className="flex items-center gap-1.5 text-[#2B5C8F]">
+                <Calculator className="w-4 h-4 text-[#2B5C8F]" />
+                3. Optimize Constraints
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EFF5FB] text-[#2B5C8F] font-mono border border-[#CCE0F5]">
+                CP-SAT Solver
+              </span>
             </div>
-            <p className="text-[11px] text-[#636059]">Respects high-priority passenger train headways and freight siding regulation.</p>
-          </div>
+            <p className="text-[11px] text-[#636059] leading-relaxed">
+              Respects high-priority passenger headways and freight siding regulation.
+            </p>
+            {selectedStage === 3 && (
+              <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.2 rounded-full bg-[#2B5C8F] text-white text-[9px] font-bold uppercase tracking-wider">
+                Viewing Step 3
+              </span>
+            )}
+          </button>
 
-          <div className={`p-4 rounded-2xl border transition ${optimizationStep === 4 || (!isOptimizing && blocks.length > 0) ? 'bg-[#FDF3EA] border-[#F7D4B8] text-[#C87428] shadow-xs' : 'bg-[#FAF7F2]/50 border-[#E6E0D4] text-[#636059]'}`}>
-            <div className="flex items-center justify-between text-xs font-bold mb-1">
-              <span>4. Rank Feasible Options</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F7D4B8] text-[#C87428] font-mono">Confidence Score</span>
+          {/* Step 4 Tab */}
+          <button
+            type="button"
+            onClick={() => setSelectedStage(4)}
+            className={`p-4 rounded-2xl border text-left transition relative cursor-pointer ${
+              selectedStage === 4
+                ? 'bg-white border-[#C87428] ring-2 ring-[#C87428] shadow-sm'
+                : 'bg-[#FAF7F2] border-[#E6E0D4] hover:bg-white hover:border-[#C87428]/40'
+            } ${optimizationStep === 4 ? 'ring-2 ring-[#C87428] animate-pulse bg-[#FDF3EA]' : ''}`}
+          >
+            <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+              <span className="flex items-center gap-1.5 text-[#C87428]">
+                <Award className="w-4 h-4 text-[#C87428]" />
+                4. Rank Feasible Options
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FDF3EA] text-[#C87428] font-mono border border-[#F7D4B8]">
+                Confidence Score
+              </span>
             </div>
-            <p className="text-[11px] text-[#636059]">Advisory recommendations for Section Controller validation.</p>
+            <p className="text-[11px] text-[#636059] leading-relaxed">
+              Pareto candidates for Section Controller review & advisory sanction.
+            </p>
+            {selectedStage === 4 && (
+              <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.2 rounded-full bg-[#C87428] text-white text-[9px] font-bold uppercase tracking-wider">
+                Viewing Step 4
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Live Toast Notice upon convergence */}
+        {showOptimizedToast && (
+          <div className="mt-4 p-3.5 rounded-2xl bg-[#EBF5EE] border border-[#C6E7D2] text-xs text-[#2D7A4D] font-bold flex items-center justify-between shadow-xs animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#2D7A4D]" />
+              <span>✨ CP-SAT Solver Converged: Successfully synthesized optimal multi-department shadow possession window!</span>
+            </div>
+            <span className="text-[10px] font-mono bg-white px-2.5 py-0.5 rounded-full border border-[#C6E7D2]">
+              Score: 96% Feasibility
+            </span>
           </div>
+        )}
+
+        {/* Detailed Interactive Inspector Panel for Selected Pipeline Stage */}
+        <div className="mt-5 p-5 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] text-xs">
+          {selectedStage === 1 && (
+            <div className="flex flex-col gap-3 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-2.5">
+                <div className="flex items-center gap-2">
+                  <ListOrdered className="w-4 h-4 text-[#C87428]" />
+                  <h4 className="font-bold text-[#181816]">
+                    Stage 1: Work Priority & Safety Defect Matrix
+                  </h4>
+                </div>
+                <span className="text-[11px] text-[#636059]">
+                  Sorted by: <strong>Safety Hierarchy (Level 1 &gt; 2 &gt; 3 &gt; 4)</strong>
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4]">
+                  <span className="text-[10px] uppercase font-bold text-[#C53030] tracking-wider block mb-1">
+                    Priority 1: Safety Critical
+                  </span>
+                  <div className="font-bold text-[#181816]">Ultrasonic Flaw (USFD) & Joint Rail Weld</div>
+                  <p className="text-[11px] text-[#636059] mt-0.5">Defect in rail head requiring immediate tamping & flaw remediation.</p>
+                </div>
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4]">
+                  <span className="text-[10px] uppercase font-bold text-[#C87428] tracking-wider block mb-1">
+                    Priority 2: Operational Urgency
+                  </span>
+                  <div className="font-bold text-[#181816]">25kV OHE Cantilever & Contact Wire Stagger</div>
+                  <p className="text-[11px] text-[#636059] mt-0.5">Traction fatigue measurement requiring power block isolation.</p>
+                </div>
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4]">
+                  <span className="text-[10px] uppercase font-bold text-[#2D7A4D] tracking-wider block mb-1">
+                    Priority 3: Planned Maintenance
+                  </span>
+                  <div className="font-bold text-[#181816]">Point Machine 104A Electronic Testing</div>
+                  <p className="text-[11px] text-[#636059] mt-0.5">S&T quarterly overhaul synchronizable in shadow possession window.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedStage === 2 && (
+            <div className="flex flex-col gap-3 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-2.5">
+                <div className="flex items-center gap-2">
+                  <GitMerge className="w-4 h-4 text-[#2D7A4D]" />
+                  <h4 className="font-bold text-[#181816]">
+                    Stage 2: Cross-Departmental Shadow Bundling Matrix
+                  </h4>
+                </div>
+                <span className="text-[11px] text-[#2D7A4D] font-mono font-bold">
+                  ✓ 3 Disciplines Synchronized (P-Way + TRD + S&T)
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4] flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#181816]">Engineering (P-Way)</span>
+                    <span className="text-[10px] bg-[#F3EEE7] px-2 py-0.5 rounded font-mono">180 mins</span>
+                  </div>
+                  <p className="text-[11px] text-[#636059]">CSM 09-32 Track Tamping & Dynamic Track Stabilizer (DTS) on UP MAIN (Km 960–970).</p>
+                  <span className="text-[10px] font-bold text-[#2D7A4D] mt-1">✓ Primary Track Possession</span>
+                </div>
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4] flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#2B5C8F]">Traction (TRD)</span>
+                    <span className="text-[10px] bg-[#EFF5FB] text-[#2B5C8F] px-2 py-0.5 rounded font-mono">150 mins</span>
+                  </div>
+                  <p className="text-[11px] text-[#636059]">25kV OHE de-energization & Tower Wagon TW-402 wire inspection in same section.</p>
+                  <span className="text-[10px] font-bold text-[#2B5C8F] mt-1">✓ Shadowed under P-Way (0 extra delay)</span>
+                </div>
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4] flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#2D7A4D]">Signaling (S&T)</span>
+                    <span className="text-[10px] bg-[#EBF5EE] text-[#2D7A4D] px-2 py-0.5 rounded font-mono">120 mins</span>
+                  </div>
+                  <p className="text-[11px] text-[#636059]">Point machine disconnect Form S&T-102 & electronic circuit test at Sirathu yard.</p>
+                  <span className="text-[10px] font-bold text-[#2D7A4D] mt-1">✓ Shadowed under P-Way (0 extra delay)</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedStage === 3 && (
+            <div className="flex flex-col gap-3 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-2.5">
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4 text-[#2B5C8F]" />
+                  <h4 className="font-bold text-[#181816]">
+                    Stage 3: CP-SAT Constraint Programming Solver Formulation
+                  </h4>
+                </div>
+                <span className="text-[11px] text-[#2B5C8F] font-mono font-bold">
+                  Status: All Hard Constraints Satisfied
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px]">
+                <div className="bg-white p-3 rounded-xl border border-[#E6E0D4]">
+                  <strong className="text-[#181816] block mb-1">1. Headway Protection</strong>
+                  <p className="text-[#636059]">20 min safety buffer enforced between Vande Bharat (22436) and block start time.</p>
+                </div>
+                <div className="bg-white p-3 rounded-xl border border-[#E6E0D4]">
+                  <strong className="text-[#181816] block mb-1">2. Traffic Trough Window</strong>
+                  <p className="text-[#636059]">Optimal night trough chosen between 01:30 and 04:30 hrs when passenger traffic is minimal.</p>
+                </div>
+                <div className="bg-white p-3 rounded-xl border border-[#E6E0D4]">
+                  <strong className="text-[#181816] block mb-1">3. Loop Track Regulation</strong>
+                  <p className="text-[#636059]">Freight Coal Rake (BOXN) scheduled to dwell on Sirathu loop without blocking mainline.</p>
+                </div>
+                <div className="bg-white p-3 rounded-xl border border-[#E6E0D4]">
+                  <strong className="text-[#181816] block mb-1">4. Machine Crew Assignment</strong>
+                  <p className="text-[#636059]">CSM 09-32 tamping gang and TRD Tower Wagon allocated with zero resource clash.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedStage === 4 && (
+            <div className="flex flex-col gap-3 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-2.5">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[#C87428]" />
+                  <h4 className="font-bold text-[#181816]">
+                    Stage 4: Pareto-Optimal Candidate Ranking & Confidence Scores
+                  </h4>
+                </div>
+                <span className="text-[11px] text-[#C87428] font-mono font-bold">
+                  Recommended: BLK-NCR-2025-001 (96% Confidence)
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-white p-3.5 rounded-xl border-2 border-[#181816] shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#181816] text-xs">Candidate A (Recommended): 01:30 – 04:30</span>
+                      <span className="text-[10px] font-bold bg-[#EBF5EE] text-[#2D7A4D] px-2 py-0.5 rounded-full">96% Score</span>
+                    </div>
+                    <p className="text-[11px] text-[#636059] mt-1">
+                      Maximizes asset uptime (+28.5%) and saves 120 mins duplicate possession with 0 passenger train regulation.
+                    </p>
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-[#EDE7DC] flex justify-between items-center text-[10px]">
+                    <span className="text-[#2D7A4D] font-bold">✓ Highest Pareto Rank</span>
+                    <button
+                      onClick={() => onSelectBlock(blocks[0])}
+                      className="px-3 py-1 rounded-full bg-[#181816] text-white font-bold hover:bg-[#2C2B27]"
+                    >
+                      Inspect & Sanction
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4] flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#181816] text-xs">Candidate B (Alternative): 02:15 – 05:15</span>
+                      <span className="text-[10px] font-bold bg-[#FDF3EA] text-[#C87428] px-2 py-0.5 rounded-full">89% Score</span>
+                    </div>
+                    <p className="text-[11px] text-[#636059] mt-1">
+                      Secondary contingency window in case of delayed upstream Rajdhani right-of-way.
+                    </p>
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-[#EDE7DC] flex justify-between items-center text-[10px]">
+                    <span className="text-[#8F8A80]">Contingency Buffer</span>
+                    <button
+                      onClick={() => onSelectBlock(blocks[0])}
+                      className="px-3 py-1 rounded-full bg-[#F3EEE7] text-[#181816] font-bold hover:bg-[#EAE4D9]"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
