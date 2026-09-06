@@ -20,7 +20,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
   onSelectBlock,
   onSelectTrain
 }) => {
-  const [timeRange, setTimeRange] = useState<{ start: number; end: number }>({ start: 0, end: 480 }); // default 00:00 - 08:00 (Night & Morning Block Window)
+  const [timeRange, setTimeRange] = useState<{ start: number; end: number }>({ start: 0, end: 1440 }); // default full 24 hours (00:00 - 24:00)
   const [trackFilter, setTrackFilter] = useState<'ALL' | 'UP' | 'DOWN'>('ALL');
   const [trainTypeFilter, setTrainTypeFilter] = useState<'ALL' | 'PASSENGER' | 'FREIGHT'>('ALL');
   const [hoveredTrain, setHoveredTrain] = useState<Train | null>(null);
@@ -35,9 +35,9 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
   const kmSpan = Math.max(1, maxKm - minKm);
 
   // Visual dimensions
-  const svgWidth = 1000;
+  const svgWidth = 1200;
   const svgHeight = 560;
-  const padding = { top: 30, right: 40, bottom: 40, left: 120 };
+  const padding = { top: 30, right: 40, bottom: 44, left: 125 };
 
   const plotWidth = svgWidth - padding.left - padding.right;
   const plotHeight = svgHeight - padding.top - padding.bottom;
@@ -141,6 +141,15 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           {/* Preset time windows */}
           <div className="flex items-center bg-[#F3EEE7] p-1 rounded-full border border-[#E6E0D4] text-xs shadow-xs">
             <button
+              id="time-preset-full"
+              onClick={() => setTimeRange({ start: 0, end: 1440 })}
+              className={`px-3 py-1.5 rounded-full font-bold transition ${
+                timeRange.start === 0 && timeRange.end === 1440 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
+              }`}
+            >
+              24h Overview (00:00–24:00)
+            </button>
+            <button
               id="time-preset-night"
               onClick={() => setTimeRange({ start: 0, end: 360 })}
               className={`px-3 py-1.5 rounded-full font-medium transition ${
@@ -175,15 +184,6 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
               }`}
             >
               18:00–24:00
-            </button>
-            <button
-              id="time-preset-full"
-              onClick={() => setTimeRange({ start: 0, end: 1440 })}
-              className={`px-3 py-1.5 rounded-full font-medium transition ${
-                timeRange.start === 0 && timeRange.end === 1440 ? 'bg-[#181816] text-[#FAF7F2] shadow-xs' : 'text-[#636059] hover:text-[#181816]'
-              }`}
-            >
-              24h Overview
             </button>
           </div>
 
@@ -238,15 +238,28 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
         >
           <defs>
             {/* Diagonal hatching pattern for maintenance block */}
-            <pattern id="block-hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="12" stroke="#C87428" strokeWidth="2.5" strokeOpacity="0.3" />
+            <pattern
+              id="block-hatch"
+              width="10"
+              height="10"
+              patternTransform="rotate(45 0 0)"
+              patternUnits="userSpaceOnUse"
+            >
+              <line x1="0" y1="0" x2="0" y2="10" stroke="#f87171" strokeWidth="2.5" />
             </pattern>
-            <pattern id="conflict-hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="12" stroke="#C53030" strokeWidth="3" strokeOpacity="0.5" />
+            <pattern
+              id="block-hatch-active"
+              width="10"
+              height="10"
+              patternTransform="rotate(45 0 0)"
+              patternUnits="userSpaceOnUse"
+            >
+              <line x1="0" y1="0" x2="0" y2="10" stroke="#fbbf24" strokeWidth="2.5" />
             </pattern>
-            {/* Glow filters */}
-            <filter id="train-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2" result="blur" />
+
+            {/* Glowing filter for selected elements */}
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
@@ -254,6 +267,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           {/* Background Grid - Vertical Hour lines */}
           {hourTicks.map(mins => {
             const x = getX(mins);
+            const isMajor = mins % 120 === 0 || mins === 0 || mins === 1440;
             return (
               <g key={`hour-${mins}`}>
                 <line
@@ -262,19 +276,20 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
                   x2={x}
                   y2={padding.top + plotHeight}
                   stroke="#E6E0D4"
-                  strokeWidth="1"
-                  strokeDasharray="4 4"
-                  opacity="0.8"
+                  strokeWidth={isMajor ? '1' : '0.6'}
+                  strokeDasharray={isMajor ? '4 4' : '2 3'}
+                  opacity={isMajor ? '0.85' : '0.45'}
                 />
                 <text
                   x={x}
-                  y={padding.top + plotHeight + 20}
-                  fill="#8F8A80"
-                  fontSize="10"
+                  y={padding.top + plotHeight + 18}
+                  fill={isMajor ? '#181816' : '#8F8A80'}
+                  fontSize={isMajor ? '10' : '8.5'}
+                  fontWeight={isMajor ? '600' : '400'}
                   fontFamily="JetBrains Mono, monospace"
                   textAnchor="middle"
                 >
-                  {minutesToTime(mins)}
+                  {minutesToTime(mins, true)}
                 </text>
               </g>
             );

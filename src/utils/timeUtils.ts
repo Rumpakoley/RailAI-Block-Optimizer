@@ -4,7 +4,8 @@ export function timeToMinutes(timeStr: string): number {
   return (hours || 0) * 60 + (minutes || 0);
 }
 
-export function minutesToTime(totalMinutes: number): string {
+export function minutesToTime(totalMinutes: number, allow24: boolean = true): string {
+  if (allow24 && Math.round(totalMinutes) === 1440) return '24:00';
   const normalized = ((Math.floor(totalMinutes) % 1440) + 1440) % 1440;
   const hours = Math.floor(normalized / 60);
   const minutes = normalized % 60;
