@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Corridor, Train, BlockWindow } from '../types';
 import { timeToMinutes, minutesToTime, getTrainPositionAtTime } from '../utils/timeUtils';
-import { Train as TrainIcon, AlertTriangle, ShieldCheck, Clock, Layers, ZoomIn, ZoomOut, Filter, Info } from 'lucide-react';
+import { Train as TrainIcon, AlertTriangle, ShieldCheck, Clock, Layers, Filter, Info, ArrowRight, Zap } from 'lucide-react';
 
 interface StringDiagramProps {
   corridor: Corridor;
@@ -136,7 +136,6 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           </div>
         </div>
 
-        {/* Filters & Range Presets */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Preset time windows */}
           <div className="flex items-center bg-[#F3EEE7] p-1 rounded-full border border-[#E6E0D4] text-xs shadow-xs">
@@ -230,6 +229,29 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
         </div>
       )}
 
+      {/* Active Corridor Blocks Shortcut Banner */}
+      {blocks.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2.5 p-3 px-4 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] text-xs">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-[#C87428]" />
+            <span className="font-bold text-[#181816]">Active Planned Block Windows on Corridor:</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {blocks.map(blk => (
+              <button
+                key={`btn-blk-${blk.id}`}
+                onClick={() => onSelectBlock(blk)}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white hover:bg-[#181816] text-[#181816] hover:text-white font-mono font-bold text-[11px] border border-[#E6E0D4] hover:border-[#181816] transition shadow-xs cursor-pointer group"
+              >
+                <span>⚡ {blk.code} ({blk.startTime}–{blk.endTime})</span>
+                <span className="text-[10px] text-[#8F8A80] group-hover:text-white/80 font-sans">Km {blk.startKm}–{blk.endKm}</span>
+                <span className="text-[10px] underline ml-1">Open Sanction Memo ➔</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* SVG Canvas */}
       <div ref={containerRef} className="relative overflow-x-auto bg-[#FAF7F2] rounded-2xl border border-[#E6E0D4] p-3 shadow-inner">
         <svg
@@ -256,11 +278,17 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             >
               <line x1="0" y1="0" x2="0" y2="10" stroke="#fbbf24" strokeWidth="2.5" />
             </pattern>
+            <pattern id="conflict-hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="12" stroke="#C53030" strokeWidth="3" strokeOpacity="0.5" />
+            </pattern>
 
             {/* Glowing filter for selected elements */}
             <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="train-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
             </filter>
           </defs>
 
@@ -334,93 +362,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             );
           })}
 
-          {/* Proposed & Active Maintenance Blocks (Shaded Boxes) */}
-          {blocks.map(blk => {
-            const startMins = timeToMinutes(blk.startTime);
-            const endMins = timeToMinutes(blk.endTime);
-
-            // Check if within time range
-            if (endMins < timeRange.start || startMins > timeRange.end) return null;
-
-            const x1 = getX(startMins);
-            const x2 = getX(endMins);
-            const width = Math.max(4, x2 - x1);
-
-            const y1 = getY(blk.startKm);
-            const y2 = getY(blk.endKm);
-            const yTop = Math.min(y1, y2);
-            const height = Math.max(12, Math.abs(y2 - y1));
-
-            const isHovered = hoveredBlock?.id === blk.id;
-            const hasConflict = conflicts.some(c => c.block.id === blk.id);
-
-            return (
-              <g
-                key={blk.id}
-                id={`block-box-${blk.id}`}
-                className="cursor-pointer transition-opacity"
-                onClick={() => onSelectBlock(blk)}
-                onMouseEnter={() => setHoveredBlock(blk)}
-                onMouseLeave={() => setHoveredBlock(null)}
-              >
-                {/* Shaded Box */}
-                <rect
-                  x={x1}
-                  y={yTop}
-                  width={width}
-                  height={height}
-                  fill={hasConflict ? 'rgba(239, 68, 68, 0.25)' : 'rgba(99, 102, 241, 0.25)'}
-                  stroke={hasConflict ? '#ef4444' : '#6366f1'}
-                  strokeWidth={isHovered ? '2.5' : '1.5'}
-                  strokeDasharray={blk.status === 'candidate' ? '4 2' : undefined}
-                  rx="6"
-                />
-                {/* Pattern fill */}
-                <rect
-                  x={x1}
-                  y={yTop}
-                  width={width}
-                  height={height}
-                  fill={hasConflict ? 'url(#conflict-hatch)' : 'url(#block-hatch)'}
-                  rx="6"
-                  opacity="0.8"
-                />
-
-                {/* Block Header Text inside or adjacent */}
-                <rect
-                  x={x1 + 4}
-                  y={yTop + 4}
-                  width={Math.min(width - 8, 140)}
-                  height={18}
-                  fill="#0f172a"
-                  rx="4"
-                  opacity="0.9"
-                />
-                <text
-                  x={x1 + 8}
-                  y={yTop + 16}
-                  fill={hasConflict ? '#f87171' : '#a5b4fc'}
-                  fontSize="9.5"
-                  fontWeight="700"
-                  fontFamily="JetBrains Mono, monospace"
-                >
-                  ⚡ {blk.code} ({blk.lineType})
-                </text>
-
-                {/* Duration badge */}
-                <text
-                  x={x1 + 8}
-                  y={yTop + 30}
-                  fill="#cbd5e1"
-                  fontSize="8.5"
-                >
-                  {blk.bundledRequisitions.length} Tasks Bundled ({blk.departmentsInvolved.join('+')})
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Train Trajectories (Diagonal string lines) */}
+          {/* 1. Train Trajectories (Rendered FIRST so blocks sit on top) */}
           {filteredTrains.map(train => {
             const isHovered = hoveredTrain?.id === train.id;
 
@@ -528,6 +470,137 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
             );
           })}
 
+          {/* 2. Proposed & Active Maintenance Blocks (Rendered ON TOP of train strings for 100% reliable clicking) */}
+          {blocks.map(blk => {
+            const startMins = timeToMinutes(blk.startTime);
+            const endMins = timeToMinutes(blk.endTime);
+
+            // Check if within time range
+            if (endMins < timeRange.start || startMins > timeRange.end) return null;
+
+            const x1 = getX(startMins);
+            const x2 = getX(endMins);
+            const width = Math.max(20, x2 - x1);
+
+            const y1 = getY(blk.startKm);
+            const y2 = getY(blk.endKm);
+            const yTop = Math.min(y1, y2);
+            const height = Math.max(20, Math.abs(y2 - y1));
+
+            const isHovered = hoveredBlock?.id === blk.id;
+            const hasConflict = conflicts.some(c => c.block.id === blk.id);
+
+            return (
+              <g
+                key={blk.id}
+                id={`block-box-${blk.id}`}
+                className="cursor-pointer transition-all group"
+                style={{ pointerEvents: 'all' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectBlock(blk);
+                }}
+                onMouseEnter={() => setHoveredBlock(blk)}
+                onMouseLeave={() => setHoveredBlock(null)}
+              >
+                {/* Outer Glow Ring on Hover */}
+                {isHovered && (
+                  <rect
+                    x={x1 - 3}
+                    y={yTop - 3}
+                    width={width + 6}
+                    height={height + 6}
+                    fill="none"
+                    stroke="#181816"
+                    strokeWidth="2.5"
+                    strokeDasharray="4 2"
+                    rx="8"
+                    opacity="0.9"
+                  />
+                )}
+
+                {/* Shaded Box Base */}
+                <rect
+                  x={x1}
+                  y={yTop}
+                  width={width}
+                  height={height}
+                  fill={hasConflict ? 'rgba(239, 68, 68, 0.35)' : 'rgba(200, 116, 40, 0.28)'}
+                  stroke={hasConflict ? '#ef4444' : isHovered ? '#181816' : '#C87428'}
+                  strokeWidth={isHovered ? '2.5' : '1.8'}
+                  strokeDasharray={blk.status === 'candidate' ? '4 2' : undefined}
+                  rx="6"
+                />
+
+                {/* Pattern fill */}
+                <rect
+                  x={x1}
+                  y={yTop}
+                  width={width}
+                  height={height}
+                  fill={hasConflict ? 'url(#conflict-hatch)' : 'url(#block-hatch)'}
+                  rx="6"
+                  opacity="0.75"
+                />
+
+                {/* Block Header Badge - Always Clear & Clickable */}
+                <rect
+                  x={x1 + 4}
+                  y={yTop + 4}
+                  width={Math.min(width - 8, 160)}
+                  height={20}
+                  fill="#181816"
+                  rx="5"
+                  opacity="0.95"
+                />
+                <text
+                  x={x1 + 8}
+                  y={yTop + 18}
+                  fill="#FAF7F2"
+                  fontSize="9.5"
+                  fontWeight="800"
+                  fontFamily="JetBrains Mono, monospace"
+                >
+                  ⚡ {blk.code} ({blk.lineType})
+                </text>
+
+                {/* Subtitle / Tasks badge */}
+                <text
+                  x={x1 + 8}
+                  y={yTop + 34}
+                  fill="#181816"
+                  fontSize="8.5"
+                  fontWeight="700"
+                  fontFamily="JetBrains Mono, monospace"
+                >
+                  {blk.bundledRequisitions.length} Tasks Bundled ({blk.departmentsInvolved.join('+')})
+                </text>
+
+                {/* Interactive Click Hint Badge */}
+                <rect
+                  x={x1 + 4}
+                  y={yTop + height - 16}
+                  width={Math.min(width - 8, 140)}
+                  height={13}
+                  fill="#FFFFFF"
+                  stroke="#E6E0D4"
+                  strokeWidth="0.8"
+                  rx="3"
+                  opacity="0.9"
+                />
+                <text
+                  x={x1 + 8}
+                  y={yTop + height - 6}
+                  fill="#181816"
+                  fontSize="7.5"
+                  fontWeight="800"
+                >
+                  👆 Click to View Sanction Memo
+                </text>
+              </g>
+            );
+          })}
+
           {/* Current Simulation Time Scrub Line */}
           {currentSimulationMinutes >= timeRange.start && currentSimulationMinutes <= timeRange.end && (
             <g id="sim-time-scrub">
@@ -592,25 +665,25 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 bg-red-600 inline-block"></span>
-            <span>Rajdhani / Premium</span>
+            <span>Rajdhani / Shatabdi</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-emerald-600 inline-block"></span>
+            <span className="w-3 h-0.5 bg-green-600 inline-block"></span>
             <span>Mail / Express</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 border-t-2 border-dashed border-purple-600 inline-block"></span>
-            <span>Freight (BOXN/Container)</span>
+            <span>Freight (Coal / Container)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-[#C87428]/20 border border-[#C87428] rounded-xs inline-block"></span>
-            <span>Bundled Shadow Block</span>
+            <span className="w-4 h-3 bg-red-200 border border-red-500 rounded-xs inline-block"></span>
+            <span className="font-semibold text-red-600">Maintenance Block (Click to Inspect)</span>
           </div>
         </div>
 
-        <div className="text-[11px] text-[#8F8A80] flex items-center gap-1">
-          <Info className="w-3.5 h-3.5 text-[#636059]" />
-          Click on any train line or block rectangle to inspect details & approval flow.
+        <div className="flex items-center gap-2 text-[11px] text-[#8F8A80]">
+          <Info className="w-3.5 h-3.5" />
+          <span>Click any train string or maintenance block rectangle to inspect detailed schedules & sanction memos.</span>
         </div>
       </div>
     </div>
