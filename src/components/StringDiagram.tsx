@@ -29,9 +29,10 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const stations = corridor.stations;
-  const minKm = stations[0]?.kmMarker || 800;
-  const maxKm = stations[stations.length - 1]?.kmMarker || 1300;
-  const kmSpan = maxKm - minKm || 1;
+  const kmValues = stations.map(s => s.kmMarker);
+  const minKm = kmValues.length > 0 ? Math.min(...kmValues) : 0;
+  const maxKm = kmValues.length > 0 ? Math.max(...kmValues) : 1000;
+  const kmSpan = Math.max(1, maxKm - minKm);
 
   // Visual dimensions
   const svgWidth = 1000;

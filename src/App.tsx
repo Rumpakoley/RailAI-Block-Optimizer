@@ -19,7 +19,10 @@ import {
   INITIAL_BLOCKS, 
   INITIAL_WHAT_IF_SCENARIOS, 
   INITIAL_AUDIT_LOGS,
-  INITIAL_PROPOSALS
+  INITIAL_PROPOSALS,
+  CORRIDOR_TRAINS,
+  CORRIDOR_BLOCKS,
+  CORRIDOR_REQUISITIONS
 } from './data/mockData';
 import { Header } from './components/Header';
 import { AdversityManualModePanel } from './components/AdversityManualModePanel';
@@ -619,13 +622,22 @@ export default function App() {
 
   const pendingProposalCount = proposals.filter(p => p.status === 'pending_consensus').length;
 
+  const handleSelectCorridor = (corridor: Corridor) => {
+    setSelectedCorridor(corridor);
+    setTrains(CORRIDOR_TRAINS[corridor.id] || INITIAL_TRAINS);
+    setBlocks(CORRIDOR_BLOCKS[corridor.id] || INITIAL_BLOCKS);
+    setRequisitions(CORRIDOR_REQUISITIONS[corridor.id] || INITIAL_REQUISITIONS);
+    setSelectedBlock(null);
+    setSelectedTrain(null);
+  };
+
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#181816] flex flex-col font-sans selection:bg-[#181816] selection:text-[#FAF7F2] antialiased">
       {/* Top Header */}
       <Header
         corridors={corridors}
         selectedCorridor={selectedCorridor}
-        onSelectCorridor={setSelectedCorridor}
+        onSelectCorridor={handleSelectCorridor}
         activeTab={activeTab}
         onChangeTab={setActiveTab}
         currentSimMinutes={currentSimMinutes}
