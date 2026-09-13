@@ -131,7 +131,7 @@ export const StringDiagram: React.FC<StringDiagramProps> = ({
               </span>
             </h3>
             <p className="text-xs text-[#636059]">
-              Interactive 24-Hour Train Path Graph & Corridor Block Occupancy Projection
+              📈 <strong>Slanted Lines</strong> = Train Trajectories • 🟥 <strong>Shaded Box</strong> = Maintenance Block (No Trains Allowed)
             </p>
           </div>
         </div>

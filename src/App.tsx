@@ -26,6 +26,8 @@ import {
 } from './data/mockData';
 import { Header } from './components/Header';
 import { AdversityManualModePanel } from './components/AdversityManualModePanel';
+import { ExecutiveSummaryBanner } from './components/ExecutiveSummaryBanner';
+import { GuidedTourModal } from './components/GuidedTourModal';
 import { StringDiagram } from './components/StringDiagram';
 import { OptimizerView } from './components/OptimizerView';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
@@ -39,6 +41,8 @@ import { TrainDetailModal } from './components/TrainDetailModal';
 import { timeToMinutes } from './utils/timeUtils';
 
 export default function App() {
+  const [isSimpleMode, setIsSimpleMode] = useState<boolean>(true);
+  const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
   const [corridors] = useState<Corridor[]>(INITIAL_CORRIDORS);
   const [selectedCorridor, setSelectedCorridor] = useState<Corridor>(INITIAL_CORRIDORS[0]);
 
@@ -650,6 +654,9 @@ export default function App() {
         pendingProposalCount={pendingProposalCount}
         manualMode={manualMode}
         onOpenManualMode={() => handleToggleManualMode(!manualMode.isManualMode, 'Adverse Operations / Signalling Breakdown')}
+        isSimpleMode={isSimpleMode}
+        onToggleSimpleMode={() => setIsSimpleMode(prev => !prev)}
+        onStartTour={() => setIsTourOpen(true)}
       />
 
       {/* Global Inter-Station Notification Banner */}
@@ -662,18 +669,28 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
-        {/* Adversity & Manual Mode Control Panel */}
-        <AdversityManualModePanel
-          manualMode={manualMode}
+        {/* Executive 10-Second Summary for Judges */}
+        <ExecutiveSummaryBanner
           corridor={selectedCorridor}
-          blocks={blocks}
-          trains={trains}
-          onToggleManualMode={handleToggleManualMode}
-          onEmergencySuspendBlocks={handleEmergencySuspendBlocks}
-          onToggleGlobalCautionOrder={handleToggleGlobalCautionOrder}
-          onManualShiftBlock={handleManualShiftBlock}
-          onGeneratePaperAuthority={handleGeneratePaperAuthority}
+          activeBlock={blocks[0] || null}
+          onRunDemo={() => setIsTourOpen(true)}
+          onGoToOptimizer={() => setActiveTab('OPTIMIZER')}
         />
+
+        {/* Adversity & Manual Mode Control Panel (shown when engaged or in advanced mode) */}
+        {manualMode.isManualMode && (
+          <AdversityManualModePanel
+            manualMode={manualMode}
+            corridor={selectedCorridor}
+            blocks={blocks}
+            trains={trains}
+            onToggleManualMode={handleToggleManualMode}
+            onEmergencySuspendBlocks={handleEmergencySuspendBlocks}
+            onToggleGlobalCautionOrder={handleToggleGlobalCautionOrder}
+            onManualShiftBlock={handleManualShiftBlock}
+            onGeneratePaperAuthority={handleGeneratePaperAuthority}
+          />
+        )}
         {activeTab === 'STRING_GRAPH' && (
           <StringDiagram
             corridor={selectedCorridor}
@@ -784,6 +801,15 @@ export default function App() {
         blocks={blocks}
         trains={trains}
         requisitions={requisitions}
+      />
+
+      <GuidedTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        corridor={selectedCorridor}
+        onNavigateTab={(tab) => {
+          setActiveTab(tab);
+        }}
       />
     </div>
   );

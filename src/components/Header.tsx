@@ -1,7 +1,7 @@
 import React from 'react';
 import { Corridor, ManualModeState } from '../types';
 import { minutesToTime } from '../utils/timeUtils';
-import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power } from 'lucide-react';
+import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power, Compass, SlidersHorizontal, Eye } from 'lucide-react';
 
 interface HeaderProps {
   corridors: Corridor[];
@@ -19,6 +19,9 @@ interface HeaderProps {
   pendingProposalCount?: number;
   manualMode?: ManualModeState;
   onOpenManualMode?: () => void;
+  isSimpleMode: boolean;
+  onToggleSimpleMode: () => void;
+  onStartTour: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,41 +39,44 @@ export const Header: React.FC<HeaderProps> = ({
   conflictCount,
   pendingProposalCount,
   manualMode,
-  onOpenManualMode
+  onOpenManualMode,
+  isSimpleMode,
+  onToggleSimpleMode,
+  onStartTour
 }) => {
   return (
     <header id="app-header" className="bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E6E0D4] sticky top-0 z-40">
       {/* Top Utility Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4 border-b border-[#EDE7DC]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3.5 border-b border-[#EDE7DC]">
         {/* Brand & Title */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-full bg-[#181816] flex items-center justify-center text-[#FAF7F2] font-black shadow-sm">
-            <Train className="w-5 h-5 text-[#FAF7F2]" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-[#181816] flex items-center justify-center text-[#FAF7F2] font-black shadow-sm">
+            <Train className="w-4 h-4 text-[#FAF7F2]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-base font-cinzel font-bold tracking-widest text-[#181816] uppercase">
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm sm:text-base font-cinzel font-bold tracking-widest text-[#181816] uppercase">
                 RailAI Block Optimizer
               </h1>
             </div>
-            <p className="text-[11px] text-[#636059] font-medium tracking-wide">
-              AI-Powered Automatic Block Planning to Maximize Asset Availability for Train Operations on Indian Railways
+            <p className="text-[10.5px] text-[#636059] font-medium tracking-wide hidden sm:block">
+              AI-Powered Automatic Block Planning to Maximize Asset Availability for Train Operations
             </p>
           </div>
         </div>
 
-        {/* Right Tools: Corridor Selector, Live Clock, Copilot */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Right Tools: Corridor, Clock, Mode Switch, Guided Tour, Copilot */}
+        <div className="flex flex-wrap items-center gap-2">
           {/* Corridor Dropdown */}
-          <div className="flex items-center bg-white rounded-full border border-[#E6E0D4] px-3.5 py-1.5 text-xs shadow-xs">
-            <span className="text-[#8F8A80] mr-2 text-[10px] font-bold tracking-wider uppercase">Corridor:</span>
+          <div className="flex items-center bg-white rounded-full border border-[#E6E0D4] px-3 py-1 text-xs shadow-xs">
+            <span className="text-[#8F8A80] mr-1.5 text-[9.5px] font-bold tracking-wider uppercase">Section:</span>
             <select
               value={selectedCorridor.id}
               onChange={e => {
                 const found = corridors.find(c => c.id === e.target.value);
                 if (found) onSelectCorridor(found);
               }}
-              className="bg-transparent text-[#181816] font-semibold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-[#181816] font-semibold focus:outline-none cursor-pointer pr-1 text-xs"
             >
               {corridors.map(c => (
                 <option key={c.id} value={c.id} className="bg-white text-[#181816]">
@@ -80,170 +86,145 @@ export const Header: React.FC<HeaderProps> = ({
             </select>
           </div>
 
-          {/* Simulation Clock & Controls */}
-          <div className="flex items-center bg-white rounded-full border border-[#E6E0D4] p-1 gap-1 text-xs shadow-xs">
-            <button
-              onClick={onTogglePlay}
-              className={`p-1.5 rounded-full transition ${
-                isPlaying ? 'bg-[#181816] text-[#FAF7F2]' : 'bg-[#F3EEE7] text-[#181816] hover:bg-[#EAE4D9]'
-              }`}
-              title={isPlaying ? 'Pause simulation clock' : 'Start simulation clock'}
-            >
-              {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            </button>
+          {/* Simple vs Advanced View Toggle */}
+          <button
+            onClick={onToggleSimpleMode}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition shadow-xs cursor-pointer ${
+              isSimpleMode
+                ? 'bg-[#181816] text-white border-[#181816]'
+                : 'bg-white text-[#636059] hover:text-[#181816] border-[#E6E0D4]'
+            }`}
+            title="Switch between simplified view for judges and advanced technical view"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#C87428]" />
+            <span>{isSimpleMode ? 'Simple View' : 'Advanced View'}</span>
+          </button>
 
-            <div className="px-2.5 py-0.5 font-mono font-bold text-[#181816] text-xs">
-              {minutesToTime(currentSimMinutes)} IST
-            </div>
-
-            <div className="flex items-center gap-0.5 bg-[#FAF7F2] px-1 py-0.5 rounded-full border border-[#E6E0D4]">
-              {[1, 5, 15].map(speed => (
-                <button
-                  key={speed}
-                  onClick={() => onSpeedChange(speed)}
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-mono transition ${
-                    simSpeed === speed ? 'bg-[#181816] text-white font-bold' : 'text-[#636059] hover:text-[#181816]'
-                  }`}
-                >
-                  {speed}x
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Operating Mode Toggle / Indicator */}
-          {manualMode && (
-            <button
-              id="btn-mode-toggle"
-              onClick={onOpenManualMode}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border shadow-xs ${
-                manualMode.isManualMode
-                  ? 'bg-[#FDF2F2] text-[#C53030] border-[#F8D7D7] animate-pulse'
-                  : 'bg-[#EBF5EE] text-[#2D7A4D] border-[#C6E7D2] hover:bg-[#FAF7F2]'
-              }`}
-              title="Click to manage Adversity Contingency & Manual Override"
-            >
-              {manualMode.isManualMode ? (
-                <>
-                  <AlertTriangle className="w-3.5 h-3.5 text-[#C53030]" />
-                  <span>MANUAL OVERRIDE</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-[#2D7A4D]"></span>
-                  <span>AI AUTO MODE</span>
-                </>
-              )}
-            </button>
-          )}
+          {/* 60s Tour Button */}
+          <button
+            onClick={onStartTour}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF5EE] hover:bg-[#D9EFE0] text-[#2D7A4D] font-bold text-xs border border-[#C6E7D2] transition shadow-xs cursor-pointer"
+            title="Start 60-Second Guided Tour for Judges"
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">60s Demo</span>
+          </button>
 
           {/* AI Copilot Trigger Button */}
           <button
             id="btn-open-copilot"
             onClick={onOpenCopilot}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-[#FAF7F2] font-semibold text-xs shadow-sm transition active:scale-95 tracking-wide"
+            className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#181816] hover:bg-[#2C2B27] text-[#FAF7F2] font-semibold text-xs shadow-sm transition active:scale-95 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#C87428]" />
-            <span>RailAI Copilot</span>
+            <span>Copilot</span>
           </button>
         </div>
       </div>
 
       {/* Main Navigation Tabs Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto">
-        <div className="flex items-center gap-1.5 py-2.5 text-xs font-semibold">
+        <div className="flex items-center gap-1.5 py-2 text-xs font-semibold">
+          {/* 1. Live Overview & String Graph */}
           <button
             id="nav-tab-string-graph"
             onClick={() => onChangeTab('STRING_GRAPH')}
-            className={`px-4 py-2 rounded-full transition flex items-center gap-2 ${
+            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'STRING_GRAPH'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Train className="w-3.5 h-3.5" />
-            <span>Time-Space String Graph</span>
+            <span>{isSimpleMode ? '1. Live Corridor Graph' : 'Time-Space String Graph'}</span>
           </button>
 
+          {/* 2. AI Optimizer & Bundler */}
           <button
             id="nav-tab-optimizer"
             onClick={() => onChangeTab('OPTIMIZER')}
-            className={`px-4 py-2 rounded-full transition flex items-center gap-2 ${
+            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'OPTIMIZER'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>AI Optimizer & Bundler</span>
+            <span>{isSimpleMode ? '2. AI Block Optimizer' : 'AI Optimizer & Bundler'}</span>
           </button>
 
-          <button
-            id="nav-tab-what-if"
-            onClick={() => onChangeTab('WHAT_IF')}
-            className={`px-4 py-2 rounded-full transition flex items-center gap-2 ${
-              activeTab === 'WHAT_IF'
-                ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
-                : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
-            }`}
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Dynamic What-If Simulator</span>
-            {conflictCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-[#C87428] animate-ping"></span>
-            )}
-          </button>
-
+          {/* 3. Inter-Station Consensus & Approval */}
           <button
             id="nav-tab-consensus"
             onClick={() => onChangeTab('CONSENSUS')}
-            className={`px-4 py-2 rounded-full transition flex items-center gap-2 relative ${
+            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 relative cursor-pointer ${
               activeTab === 'CONSENSUS'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
-            <span>Inter-Station Consensus</span>
+            <span>{isSimpleMode ? '3. Station Consensus & Approval' : 'Inter-Station Consensus'}</span>
             {pendingProposalCount && pendingProposalCount > 0 ? (
-              <span className="px-1.5 py-0.2 rounded-full bg-[#C87428] text-white font-bold text-[10px] font-mono">
+              <span className="px-1.5 py-0.2 rounded-full bg-[#C87428] text-white font-bold text-[9px] font-mono">
                 {pendingProposalCount}
               </span>
             ) : null}
           </button>
 
-          <button
-            id="nav-tab-approval"
-            onClick={() => onChangeTab('APPROVAL')}
-            className={`px-4 py-2 rounded-full transition flex items-center gap-2 ${
-              activeTab === 'APPROVAL'
-                ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
-                : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5" />
-            <span>Advisory Sanctions & Governance</span>
-          </button>
+          {/* Advanced Tabs (Shown if not simple mode or if active) */}
+          {(!isSimpleMode || activeTab === 'WHAT_IF') && (
+            <button
+              id="nav-tab-what-if"
+              onClick={() => onChangeTab('WHAT_IF')}
+              className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'WHAT_IF'
+                  ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
+                  : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
+              }`}
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>What-If Simulator</span>
+              {conflictCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-[#C87428] animate-ping"></span>
+              )}
+            </button>
+          )}
+
+          {(!isSimpleMode || activeTab === 'APPROVAL') && (
+            <button
+              id="nav-tab-approval"
+              onClick={() => onChangeTab('APPROVAL')}
+              className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'APPROVAL'
+                  ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
+                  : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
+              }`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Sanctions Workflow</span>
+            </button>
+          )}
 
           <button
             id="nav-tab-analytics"
             onClick={() => onChangeTab('ANALYTICS')}
-            className={`px-4 py-2 rounded-full transition flex items-center gap-2 ${
+            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'ANALYTICS'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>KPIs & Audit Trail</span>
+            <span>{isSimpleMode ? '4. Impact & KPIs' : 'KPIs & Audit Trail'}</span>
           </button>
         </div>
 
-        {/* Real-time Status Badge */}
-        <div className="hidden md:flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2 text-[#2D7A4D] font-mono text-[11px] bg-[#EBF5EE] px-3 py-1 rounded-full border border-[#C6E7D2]">
-            <span className="w-2 h-2 rounded-full bg-[#2D7A4D] animate-pulse"></span>
-            TMS / TDMS / SMMS Integrated
+        {/* Operating Mode Status indicator */}
+        <div className="hidden lg:flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-[#2D7A4D] font-mono text-[10px] bg-[#EBF5EE] px-2.5 py-0.5 rounded-full border border-[#C6E7D2]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2D7A4D] animate-pulse"></span>
+            <span>Live TMS / TDMS / SMMS Integrated</span>
           </div>
         </div>
       </div>
