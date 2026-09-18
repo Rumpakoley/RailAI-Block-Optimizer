@@ -411,52 +411,97 @@ export const OptimizerView: React.FC<OptimizerViewProps> = ({
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-[#C87428]" />
                   <h4 className="font-bold text-[#181816]">
-                    Stage 4: Pareto-Optimal Candidate Ranking & Confidence Scores
+                    Stage 4: Pareto-Optimal Candidate Ranking (3 AI Routine Options)
                   </h4>
                 </div>
                 <span className="text-[11px] text-[#C87428] font-mono font-bold">
-                  Recommended: BLK-NCR-2025-001 (96% Confidence)
+                  Officials Can Evaluate & Select from 3 AI Strategies
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* Candidate 1 */}
                 <div className="bg-white p-3.5 rounded-xl border-2 border-[#181816] shadow-xs flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#181816] text-xs">Candidate A (Recommended): 01:30 – 04:30</span>
+                      <span className="font-bold text-[#181816] text-xs">Option 1: Punctuality Focus</span>
                       <span className="text-[10px] font-bold bg-[#EBF5EE] text-[#2D7A4D] px-2 py-0.5 rounded-full">96% Score</span>
                     </div>
+                    <span className="text-[10px] font-mono font-bold text-[#2D7A4D] block mt-1">
+                      Window: 01:30 – 04:30 (180 mins)
+                    </span>
                     <p className="text-[11px] text-[#636059] mt-1">
-                      Maximizes asset uptime (+28.5%) and saves 120 mins duplicate possession with 0 passenger train regulation.
+                      Zero delay on Rajdhani & Vande Bharat. Stables freight rake at loop siding.
                     </p>
+                    <div className="grid grid-cols-2 gap-1 text-[10px] font-mono mt-2 pt-2 border-t border-[#EDE7DC]">
+                      <span>Punctuality: <strong className="text-[#2D7A4D]">99.2%</strong></span>
+                      <span>Track Gain: <strong className="text-[#2563eb]">+28.5%</strong></span>
+                    </div>
                   </div>
                   <div className="mt-3 pt-2 border-t border-[#EDE7DC] flex justify-between items-center text-[10px]">
-                    <span className="text-[#2D7A4D] font-bold">✓ Highest Pareto Rank</span>
+                    <span className="text-[#2D7A4D] font-bold">✓ Recommended</span>
                     <button
                       onClick={() => onSelectBlock(blocks[0])}
-                      className="px-3 py-1 rounded-full bg-[#181816] text-white font-bold hover:bg-[#2C2B27]"
+                      className="px-3 py-1 rounded-full bg-[#181816] text-white font-bold hover:bg-[#2C2B27] cursor-pointer"
                     >
-                      Inspect & Sanction
+                      Select Option 1
                     </button>
                   </div>
                 </div>
 
+                {/* Candidate 2 */}
                 <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4] flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#181816] text-xs">Candidate B (Alternative): 02:15 – 05:15</span>
-                      <span className="text-[10px] font-bold bg-[#FDF3EA] text-[#C87428] px-2 py-0.5 rounded-full">89% Score</span>
+                      <span className="font-bold text-[#181816] text-xs">Option 2: Freight Throughput</span>
+                      <span className="text-[10px] font-bold bg-[#EFF5FB] text-[#2563eb] px-2 py-0.5 rounded-full">91% Score</span>
                     </div>
+                    <span className="text-[10px] font-mono font-bold text-[#2563eb] block mt-1">
+                      Window: 02:15 – 05:15 (180 mins)
+                    </span>
                     <p className="text-[11px] text-[#636059] mt-1">
-                      Secondary contingency window in case of delayed upstream Rajdhani right-of-way.
+                      Continuous freight flow with zero siding regulation. Minor 4-min passenger caution.
                     </p>
+                    <div className="grid grid-cols-2 gap-1 text-[10px] font-mono mt-2 pt-2 border-t border-[#EDE7DC]">
+                      <span>Freight Flow: <strong className="text-[#181816]">99.8%</strong></span>
+                      <span>Avg Delay: <strong className="text-[#C87428]">3.2 min</strong></span>
+                    </div>
                   </div>
                   <div className="mt-3 pt-2 border-t border-[#EDE7DC] flex justify-between items-center text-[10px]">
-                    <span className="text-[#8F8A80]">Contingency Buffer</span>
+                    <span className="text-[#8F8A80]">Energy Priority</span>
                     <button
                       onClick={() => onSelectBlock(blocks[0])}
-                      className="px-3 py-1 rounded-full bg-[#F3EEE7] text-[#181816] font-bold hover:bg-[#EAE4D9]"
+                      className="px-3 py-1 rounded-full bg-[#F3EEE7] text-[#181816] font-bold hover:bg-[#EAE4D9] cursor-pointer"
                     >
-                      View Details
+                      Select Option 2
+                    </button>
+                  </div>
+                </div>
+
+                {/* Candidate 3 */}
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6E0D4] flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#181816] text-xs">Option 3: Mega Window</span>
+                      <span className="text-[10px] font-bold bg-[#FDF3EA] text-[#C87428] px-2 py-0.5 rounded-full">88% Score</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-[#C87428] block mt-1">
+                      Window: 01:45 – 05:15 (210 mins)
+                    </span>
+                    <p className="text-[11px] text-[#636059] mt-1">
+                      Clears 100% of P-Way + TRD + S&T backlog in 1 night with 30 km/h caution order.
+                    </p>
+                    <div className="grid grid-cols-2 gap-1 text-[10px] font-mono mt-2 pt-2 border-t border-[#EDE7DC]">
+                      <span>Track Gain: <strong className="text-[#2563eb]">+38.5%</strong></span>
+                      <span>Time Saved: <strong className="text-[#2D7A4D]">180 min</strong></span>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-[#EDE7DC] flex justify-between items-center text-[10px]">
+                    <span className="text-[#8F8A80]">Mega Renewal</span>
+                    <button
+                      onClick={() => onSelectBlock(blocks[0])}
+                      className="px-3 py-1 rounded-full bg-[#F3EEE7] text-[#181816] font-bold hover:bg-[#EAE4D9] cursor-pointer"
+                    >
+                      Select Option 3
                     </button>
                   </div>
                 </div>

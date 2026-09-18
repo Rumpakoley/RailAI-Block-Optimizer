@@ -45,8 +45,94 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
+  const [selectedAIRoutineOption, setSelectedAIRoutineOption] = useState<'OPTION_A' | 'OPTION_B' | 'OPTION_C'>('OPTION_A');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 3 AI Generated Routine Candidates Definition
+  const aiRoutineOptions = [
+    {
+      id: 'OPTION_A',
+      badge: 'Recommended • Passenger Priority',
+      badgeColor: 'bg-[#EBF5EE] text-[#2D7A4D] border-[#C6E7D2]',
+      title: 'Option 1: Passenger Punctuality Focus & Dynamic Loop Siding',
+      description: 'Zero delay on Vande Bharat & Rajdhani express trains. Coal freight rakes regulated in loop sidings during the 01:30–04:30 shadow block window.',
+      windowTiming: '01:30 – 04:30 (180 mins)',
+      metrics: {
+        punctuality: '99.2%',
+        freightThroughput: '96.5%',
+        trackGain: '+28.5%',
+        avgDelay: '1.1 min'
+      },
+      trainImpactSummary: 'Rajdhani (0m delay) • Vande Bharat (0m delay) • Freight BOXN (Regulate 22m at Loop)',
+      applyChanges: () => {
+        const baseTrains = CORRIDOR_TRAINS[corridor.id] || CORRIDOR_TRAINS['ncr-hdn-1'];
+        const updated = baseTrains.map(t => {
+          if (t.type.includes('Freight')) {
+            return { ...t, currentDelayMinutes: 22, currentStatus: 'Regulated at Siding' as const, regulatedAtStation: corridor.stations[1]?.name || 'Loop' };
+          }
+          return { ...t, currentDelayMinutes: 0, currentStatus: 'On Time' as const, regulatedAtStation: undefined };
+        });
+        onUpdateTrains(updated);
+        setSelectedAIRoutineOption('OPTION_A');
+        setUploadSuccessMessage('Applied AI Routine Option 1: Passenger Punctuality Priority (Zero passenger conflict).');
+      }
+    },
+    {
+      id: 'OPTION_B',
+      badge: 'Freight Throughput Priority',
+      badgeColor: 'bg-[#EFF5FB] text-[#2563eb] border-[#D0E2F5]',
+      title: 'Option 2: Continuous Freight Corridor & Thermal Coal Delivery',
+      description: 'Shifts maintenance possession to 02:15–05:15. Heavy coal rakes pass through without loop regulation; minor 4-min caution on Mail/Express trains.',
+      windowTiming: '02:15 – 05:15 (180 mins)',
+      metrics: {
+        punctuality: '97.4%',
+        freightThroughput: '99.8%',
+        trackGain: '+26.0%',
+        avgDelay: '3.2 min'
+      },
+      trainImpactSummary: 'Freight BOXN (0m delay) • Rajdhani (0m delay) • Mail/Express (+4m caution buffer)',
+      applyChanges: () => {
+        const baseTrains = CORRIDOR_TRAINS[corridor.id] || CORRIDOR_TRAINS['ncr-hdn-1'];
+        const updated = baseTrains.map(t => {
+          if (t.type === 'Mail / Express') {
+            return { ...t, currentDelayMinutes: 4, currentStatus: 'Running Late' as const, regulatedAtStation: undefined };
+          }
+          return { ...t, currentDelayMinutes: 0, currentStatus: 'On Time' as const, regulatedAtStation: undefined };
+        });
+        onUpdateTrains(updated);
+        setSelectedAIRoutineOption('OPTION_B');
+        setUploadSuccessMessage('Applied AI Routine Option 2: Continuous Freight Throughput Priority.');
+      }
+    },
+    {
+      id: 'OPTION_C',
+      badge: 'Mega Engineering Possession',
+      badgeColor: 'bg-[#FDF3EA] text-[#C87428] border-[#F7D4B8]',
+      title: 'Option 3: Maximum Engineering Clearance (210-Min Mega Window)',
+      description: 'Expands possession window to 210 mins (01:45–05:15) to clear 100% of P-Way + TRD + S&T backlog in a single night. 30 km/h caution order on adjacent line.',
+      windowTiming: '01:45 – 05:15 (210 mins)',
+      metrics: {
+        punctuality: '94.8%',
+        freightThroughput: '92.0%',
+        trackGain: '+38.5%',
+        avgDelay: '4.6 min'
+      },
+      trainImpactSummary: 'Mega 210m Shadow Block • Universal 30 km/h Caution Order • +6m buffer on 2 trains',
+      applyChanges: () => {
+        const baseTrains = CORRIDOR_TRAINS[corridor.id] || CORRIDOR_TRAINS['ncr-hdn-1'];
+        const updated = baseTrains.map((t, idx) => {
+          if (idx >= 2) {
+            return { ...t, currentDelayMinutes: 8, currentStatus: 'Running Late' as const, regulatedAtStation: undefined };
+          }
+          return { ...t, currentDelayMinutes: 0, currentStatus: 'On Time' as const, regulatedAtStation: undefined };
+        });
+        onUpdateTrains(updated);
+        setSelectedAIRoutineOption('OPTION_C');
+        setUploadSuccessMessage('Applied AI Routine Option 3: Mega 210-Min Engineering Window.');
+      }
+    }
+  ];
 
   // New Train Form State
   const [newTrainNumber, setNewTrainNumber] = useState('');
@@ -387,6 +473,106 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* 3 AI-GENERATED ROUTINE CANDIDATES (Choose between 3 AI Options) */}
+      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EDE7DC] pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-[#181816] text-[#FAF7F2]">
+              <Sparkles className="w-4 h-4 text-[#C87428]" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[#181816]">
+                AI Routine Candidate Options (Select Preferred Policy)
+              </h3>
+              <p className="text-xs text-[#636059]">
+                RailAI synthesized 3 viable timetable & block possession options for officials to evaluate.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono font-bold bg-[#FAF7F2] text-[#181816] px-3 py-1 rounded-full border border-[#E6E0D4] self-start sm:self-auto">
+            Active Selection: <strong className="text-[#2D7A4D]">{selectedAIRoutineOption === 'OPTION_A' ? 'Option 1' : selectedAIRoutineOption === 'OPTION_B' ? 'Option 2' : 'Option 3'}</strong>
+          </span>
+        </div>
+
+        {/* 3 Options Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {aiRoutineOptions.map(opt => {
+            const isSelected = selectedAIRoutineOption === opt.id;
+            return (
+              <div
+                key={opt.id}
+                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
+                  isSelected
+                    ? 'bg-white border-[#181816] ring-2 ring-[#181816] shadow-sm'
+                    : 'bg-[#FAF7F2] border-[#E6E0D4] hover:bg-white hover:border-[#181816]/40'
+                }`}
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono border ${opt.badgeColor}`}>
+                      {opt.badge}
+                    </span>
+                    {isSelected && (
+                      <span className="text-[10px] font-bold font-mono bg-[#181816] text-white px-2 py-0.5 rounded-full">
+                        ✓ Active
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 className="font-bold text-[#181816] text-xs">
+                    {opt.title}
+                  </h4>
+                  <p className="text-[11px] text-[#636059] leading-relaxed">
+                    {opt.description}
+                  </p>
+
+                  <div className="p-2 rounded-xl bg-white border border-[#E6E0D4] flex flex-col gap-1 text-[10.5px]">
+                    <span className="font-mono text-[#8F8A80] text-[9.5px] uppercase font-bold">
+                      Block Window: <strong className="text-[#181816]">{opt.windowTiming}</strong>
+                    </span>
+                    <span className="text-[#636059] text-[10.5px]">
+                      {opt.trainImpactSummary}
+                    </span>
+                  </div>
+
+                  {/* Metrics Row */}
+                  <div className="grid grid-cols-4 gap-1 pt-1.5 border-t border-[#EDE7DC] text-center font-mono text-[10.5px]">
+                    <div>
+                      <span className="text-[8.5px] text-[#8F8A80] block">Punctuality</span>
+                      <strong className="text-[#2D7A4D]">{opt.metrics.punctuality}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[8.5px] text-[#8F8A80] block">Freight</span>
+                      <strong className="text-[#181816]">{opt.metrics.freightThroughput}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[8.5px] text-[#8F8A80] block">Track Gain</span>
+                      <strong className="text-[#2563eb]">{opt.metrics.trackGain}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[8.5px] text-[#8F8A80] block">Avg Delay</span>
+                      <strong className="text-[#C87428]">{opt.metrics.avgDelay}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={opt.applyChanges}
+                  className={`w-full py-2 rounded-full text-xs font-bold transition active:scale-95 cursor-pointer shadow-xs ${
+                    isSelected
+                      ? 'bg-[#2D7A4D] text-white hover:bg-[#24633E]'
+                      : 'bg-[#181816] text-white hover:bg-[#2C2B27]'
+                  }`}
+                >
+                  {isSelected ? '✓ Routine Currently Applied' : 'Apply This AI Routine'}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
