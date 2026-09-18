@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Corridor, 
   BlockWindow, 
@@ -52,16 +52,63 @@ export const ControllerConsensusView: React.FC<ControllerConsensusViewProps> = (
   );
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
 
+  // Synchronize selected proposal when corridor or proposals list changes
+  useEffect(() => {
+    if (proposals.length > 0) {
+      if (!proposals.some(p => p.id === selectedProposalId)) {
+        setSelectedProposalId(proposals[0].id);
+      }
+    } else {
+      setSelectedProposalId('');
+    }
+  }, [corridor.id, proposals, selectedProposalId]);
+
+  // Dynamic corridor defaults for proposal form
+  const getCorridorDefaults = (cId: string) => {
+    if (cId === 'er-grand-chord') {
+      return {
+        unit: 'Station Master Unit — Barddhaman (BWN)',
+        officer: 'A. K. Banerjee (Station Master)',
+        section: 'Barddhaman – Durgapur Section (Km 110 to 125)',
+        prefix: 'ER'
+      };
+    }
+    if (cId === 'wr-mumbai-vadodara') {
+      return {
+        unit: 'Station Master Unit — Surat (ST)',
+        officer: 'P. K. Patel (Station Master)',
+        section: 'Surat – Bharuch Section (Km 280 to 295)',
+        prefix: 'WR'
+      };
+    }
+    return {
+      unit: 'Station Master Unit — Sirathu (SRO)',
+      officer: 'D. K. Mishra (Station Master)',
+      section: 'Sirathu – Khaga Section (Km 920 to 945)',
+      prefix: 'NCR'
+    };
+  };
+
+  const initialDefaults = getCorridorDefaults(corridor.id);
+
   // New Proposal Form State
-  const [formProposingUnit, setFormProposingUnit] = useState<string>('Station Master Unit — Sirathu (SRO)');
-  const [formProposingOfficer, setFormProposingOfficer] = useState<string>('D. K. Mishra (Station Master)');
+  const [formProposingUnit, setFormProposingUnit] = useState<string>(initialDefaults.unit);
+  const [formProposingOfficer, setFormProposingOfficer] = useState<string>(initialDefaults.officer);
   const [formReasonType, setFormReasonType] = useState<ProposalReasonType>('emergency_track_defect');
   const [formTitle, setFormTitle] = useState<string>('');
   const [formDescription, setFormDescription] = useState<string>('');
-  const [formTargetSection, setFormTargetSection] = useState<string>('Sirathu – Khaga Section (Km 920 to 945)');
+  const [formTargetSection, setFormTargetSection] = useState<string>(initialDefaults.section);
   const [formTargetLine, setFormTargetLine] = useState<'UP MAIN' | 'DOWN MAIN' | 'BOTH LINES'>('UP MAIN');
   const [formShiftMinutes, setFormShiftMinutes] = useState<number>(45);
   const [formUrgency, setFormUrgency] = useState<UrgencyLevel>('High');
+
+  // Update form defaults when corridor changes
+  useEffect(() => {
+    const defs = getCorridorDefaults(corridor.id);
+    setFormProposingUnit(defs.unit);
+    setFormProposingOfficer(defs.officer);
+    setFormTargetSection(defs.section);
+  }, [corridor.id]);
 
   // Custom reject comment modal / popover
   const [rejectStationCode, setRejectStationCode] = useState<string | null>(null);
@@ -76,45 +123,34 @@ export const ControllerConsensusView: React.FC<ControllerConsensusViewProps> = (
     const title = formTitle || `Emergency Alteration: ${formReasonType.replace(/_/g, ' ').toUpperCase()} at ${formTargetSection}`;
     const desc = formDescription || `Manual operational request submitted by ${formProposingUnit}. Requires dynamic re-scheduling and multi-station consensus.`;
 
-    const newPropId = `prop-ncr-${Date.now()}`;
-    const propCode = `PROP-NCR-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const defs = getCorridorDefaults(corridor.id);
+    const newPropId = `prop-${defs.prefix.toLowerCase()}-${Date.now()}`;
+    const propCode = `PROP-${defs.prefix}-2026-${Math.floor(100 + Math.random() * 900)}`;
 
     // Generate AI candidate options dynamically based on form shift
+    const currentBlock = blocks[0];
+    const baseCode = currentBlock?.code || `BLK-${defs.prefix}-2025-001`;
     const option1: AIRescheduleOption = {
       id: `opt-1-${Date.now()}`,
       title: 'Option A: Punctuality Protection & Dynamic Siding Regulation (Recommended)',
       strategyBadge: 'Zero Passenger Delay • Dynamic Loop Stabling',
-      description: `Shift Scheduled Block BLK-NCR-2025-001 by +${formShiftMinutes} mins (02:15 to 05:15). Higher priority passenger trains (Rajdhani & Vande Bharat) pass with clear speed. Freight trains stabled in loop siding.`,
+      description: `Shift Scheduled Block ${baseCode} by +${formShiftMinutes} mins (02:15 to 05:15). Higher priority passenger trains pass with clear speed. Freight trains stabled in loop siding.`,
       revisedBlockWindow: {
-        blockId: blocks[0]?.id || 'blk-ncr-01',
-        code: blocks[0]?.code || 'BLK-NCR-2025-001',
+        blockId: currentBlock?.id || `blk-${defs.prefix.toLowerCase()}-01`,
+        code: baseCode,
         newStartTime: '02:15',
         newEndTime: '05:15',
         durationMinutes: 180,
         sectionName: formTargetSection,
         lineType: formTargetLine
       },
-      trainImpacts: [
-        {
-          trainNumber: '12301',
-          trainName: 'Howrah - New Delhi Rajdhani Express',
-          action: 'Clear with Right of Way',
-          delayMinutes: 0
-        },
-        {
-          trainNumber: 'BOXN-8842',
-          trainName: 'DDU - Dadri Coal Freight Rake',
-          action: 'Regulate at Siding',
-          delayMinutes: 22,
-          regulatedStation: 'Sirathu (SRO)'
-        },
-        {
-          trainNumber: '22436',
-          trainName: 'Vande Bharat Express',
-          action: 'Clear with Right of Way',
-          delayMinutes: 0
-        }
-      ],
+      trainImpacts: trains.slice(0, 3).map((tr, idx) => ({
+        trainNumber: tr.number,
+        trainName: tr.name,
+        action: idx === 1 ? 'Regulate at Siding' : 'Clear with Right of Way',
+        delayMinutes: idx === 1 ? 22 : 0,
+        regulatedStation: idx === 1 ? (corridor.stations[1]?.name || 'Loop Siding') : undefined
+      })),
       metrics: {
         punctualityIndex: 99.2,
         avgDelayMinutes: 1.1,
@@ -129,31 +165,23 @@ export const ControllerConsensusView: React.FC<ControllerConsensusViewProps> = (
       id: `opt-2-${Date.now()}`,
       title: 'Option B: Extended Window with Speed Restriction Caution Order',
       strategyBadge: 'Full 210 Min Window • Joint Multi-Dept Possession',
-      description: `Expand window to 210 mins (02:00 to 05:30) combining P-Way switch repairs with OHE inspection. Temporary 30 km/h caution imposed on adjacent line.`,
+      description: `Expand window to 210 mins (02:00 to 05:30) combining P-Way repairs with OHE inspection. Temporary 30 km/h caution imposed on adjacent line.`,
       revisedBlockWindow: {
-        blockId: blocks[0]?.id || 'blk-ncr-01',
-        code: blocks[0]?.code || 'BLK-NCR-2025-001',
+        blockId: currentBlock?.id || `blk-${defs.prefix.toLowerCase()}-01`,
+        code: baseCode,
         newStartTime: '02:00',
         newEndTime: '05:30',
         durationMinutes: 210,
         sectionName: formTargetSection,
         lineType: 'BOTH LINES'
       },
-      trainImpacts: [
-        {
-          trainNumber: '12301',
-          trainName: 'Howrah - New Delhi Rajdhani Express',
-          action: 'Minor Speed Restriction',
-          delayMinutes: 4
-        },
-        {
-          trainNumber: 'BOXN-8842',
-          trainName: 'DDU - Dadri Coal Freight Rake',
-          action: 'Regulate at Siding',
-          delayMinutes: 38,
-          regulatedStation: 'Fatehpur (FTP)'
-        }
-      ],
+      trainImpacts: trains.slice(0, 2).map((tr, idx) => ({
+        trainNumber: tr.number,
+        trainName: tr.name,
+        action: idx === 1 ? 'Regulate at Siding' : 'Minor Speed Restriction',
+        delayMinutes: idx === 1 ? 38 : 4,
+        regulatedStation: idx === 1 ? (corridor.stations[0]?.name || 'Origin Loop') : undefined
+      })),
       metrics: {
         punctualityIndex: 94.8,
         avgDelayMinutes: 4.6,
@@ -165,50 +193,16 @@ export const ControllerConsensusView: React.FC<ControllerConsensusViewProps> = (
     };
 
     // Concerned stations list for the corridor
-    const concerned: StationVote[] = [
-      {
-        stationCode: 'SRO',
-        stationName: 'Sirathu Station',
-        role: 'Station Master',
-        officerName: 'D. K. Mishra',
-        status: formProposingUnit.includes('Sirathu') ? 'approved' : 'pending',
-        votedAt: formProposingUnit.includes('Sirathu') ? new Date().toLocaleTimeString('en-IN') + ' IST' : undefined,
-        remarks: formProposingUnit.includes('Sirathu') ? 'Initiated proposal. Verified siding track capacity.' : undefined,
-        required: true
-      },
-      {
-        stationCode: 'FTP',
-        stationName: 'Fatehpur Junction',
-        role: 'Station Master',
-        officerName: 'S. N. Tripathi',
-        status: 'pending',
-        required: true
-      },
-      {
-        stationCode: 'PRYJ-CTRL',
-        stationName: 'Prayagraj Control Office',
-        role: 'Section Controller (PRYJ-CNB Section)',
-        officerName: 'A. K. Verma',
-        status: 'pending',
-        required: true
-      },
-      {
-        stationCode: 'TRD-FTP',
-        stationName: 'TRD Traction Substation (Fatehpur)',
-        role: 'Chief Traction Foreman (TRD)',
-        officerName: 'R. P. Singh',
-        status: 'pending',
-        required: true
-      },
-      {
-        stationCode: 'ST-CNB',
-        stationName: 'S&T Maintenance Depot (Kanpur Area)',
-        role: 'Signal Inspector (S&T)',
-        officerName: 'Vikram Joshi',
-        status: 'pending',
-        required: true
-      }
-    ];
+    const concerned: StationVote[] = corridor.stations.map((st, idx) => ({
+      stationCode: st.code,
+      stationName: st.name,
+      role: idx === 0 ? 'Terminal Area Dispatcher' : idx === 1 ? 'Field Block Station Master' : 'Adjacent Control Station Master',
+      officerName: idx === 1 ? formProposingOfficer : idx === 0 ? 'R. K. Verma' : 'S. N. Tripathi',
+      status: idx < 2 ? 'approved' : 'pending',
+      votedAt: idx < 2 ? new Date().toLocaleTimeString('en-IN') + ' IST' : undefined,
+      remarks: idx < 2 ? 'Approved. Line clear synchronized.' : undefined,
+      required: true
+    }));
 
     const newProposal: ControllerAlterationProposal = {
       id: newPropId,

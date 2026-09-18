@@ -22,7 +22,8 @@ import {
   INITIAL_PROPOSALS,
   CORRIDOR_TRAINS,
   CORRIDOR_BLOCKS,
-  CORRIDOR_REQUISITIONS
+  CORRIDOR_REQUISITIONS,
+  CORRIDOR_PROPOSALS
 } from './data/mockData';
 import { Header } from './components/Header';
 import { AdversityManualModePanel } from './components/AdversityManualModePanel';
@@ -469,9 +470,9 @@ export default function App() {
       return p;
     }));
 
-    // Reset blocks and trains to initial state
-    setBlocks(INITIAL_BLOCKS);
-    setTrains(INITIAL_TRAINS);
+    // Reset blocks and trains to initial state for current corridor
+    setBlocks(CORRIDOR_BLOCKS[selectedCorridor.id] || INITIAL_BLOCKS);
+    setTrains(CORRIDOR_TRAINS[selectedCorridor.id] || INITIAL_TRAINS);
 
     const resetLog: AuditLogEntry = {
       id: `aud-${Date.now()}`,
@@ -631,6 +632,7 @@ export default function App() {
     setTrains(CORRIDOR_TRAINS[corridor.id] || INITIAL_TRAINS);
     setBlocks(CORRIDOR_BLOCKS[corridor.id] || INITIAL_BLOCKS);
     setRequisitions(CORRIDOR_REQUISITIONS[corridor.id] || INITIAL_REQUISITIONS);
+    setProposals(CORRIDOR_PROPOSALS[corridor.id] || INITIAL_PROPOSALS);
     setSelectedBlock(null);
     setSelectedTrain(null);
   };

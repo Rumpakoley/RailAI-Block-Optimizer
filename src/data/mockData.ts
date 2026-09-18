@@ -906,7 +906,7 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
   }
 ];
 
-export const INITIAL_PROPOSALS: ControllerAlterationProposal[] = [
+export const NCR_PROPOSALS: ControllerAlterationProposal[] = [
   {
     id: 'prop-001',
     proposalCode: 'PR-NCR-2026-089',
@@ -961,3 +961,125 @@ export const INITIAL_PROPOSALS: ControllerAlterationProposal[] = [
     ]
   }
 ];
+
+export const ER_PROPOSALS: ControllerAlterationProposal[] = [
+  {
+    id: 'prop-er-001',
+    proposalCode: 'PR-ER-2026-104',
+    proposingUnit: 'Barddhaman Station Master Unit (BWN)',
+    proposingOfficer: 'A. K. Banerjee (Station Master)',
+    proposingRole: 'Station Master / Field Operations Unit',
+    reasonType: 'Track Defect / Rail Grinding Emergency',
+    title: 'Emergency Alteration: Track Relaying & OHE Stagger at Panagarh (Km 118)',
+    description: 'Barddhaman SSE reported track settlement near Panagarh (Km 118) requiring 45-minute shift to clear upstream Sealdah Rajdhani (12314).',
+    corridorId: 'er-grand-chord',
+    targetSection: 'Barddhaman – Durgapur Section (Km 110–125)',
+    targetLine: 'UP MAIN',
+    requestedShiftMinutes: 45,
+    urgency: 'High',
+    createdAt: '01:30 IST',
+    status: 'pending_consensus',
+    aiOptions: [
+      {
+        id: 'opt-er-1',
+        title: 'Option 1: 45-Min Shift Window (Recommended)',
+        strategyBadge: 'Zero Passenger Conflict',
+        description: 'Shifts Block Window from 01:00–04:00 to 01:45–04:45. Gives Sealdah Rajdhani 12314 and Vande Bharat 22301 uninterrupted right of way.',
+        revisedBlockWindow: {
+          blockId: 'blk-er-01',
+          code: 'BLK-ER-2025-002',
+          newStartTime: '01:45',
+          newEndTime: '04:45',
+          durationMinutes: 180,
+          sectionName: 'Barddhaman – Durgapur (Km 110–125)',
+          lineType: 'UP MAIN'
+        },
+        trainImpacts: [
+          { trainNumber: '12314', trainName: 'Sealdah Rajdhani Express', action: 'Clear with Right of Way', delayMinutes: 0 },
+          { trainNumber: 'BOXN-ER-5512', trainName: 'Raniganj Coal Rake', action: 'Regulate at Siding', delayMinutes: 25, regulatedStation: 'Durgapur (Loop)' },
+          { trainNumber: '22301', trainName: 'Howrah – NJP Vande Bharat', action: 'Clear with Right of Way', delayMinutes: 0 }
+        ],
+        metrics: {
+          punctualityIndex: 99.1,
+          avgDelayMinutes: 2.3,
+          possessionTimeSavedMinutes: 110,
+          safetyComplianceScore: 100,
+          throughputPreservedPercent: 97.4
+        },
+        recommended: true
+      }
+    ],
+    selectedOptionId: 'opt-er-1',
+    concernedStations: [
+      { stationCode: 'HWH', stationName: 'Howrah Jn.', role: 'Terminal Dispatch Control', status: 'approved', remarks: 'Approved. Line clear synchronized.' },
+      { stationCode: 'BWN', stationName: 'Barddhaman Jn.', role: 'Originating Block Station Master', status: 'approved', remarks: 'P-Way and OHE gangs mobilised.' },
+      { stationCode: 'DGR', stationName: 'Durgapur', role: 'Adjacent Block Station Master', status: 'pending' },
+      { stationCode: 'ASN', stationName: 'Asansol Jn.', role: 'Divisional Interchange Controller', status: 'pending' }
+    ]
+  }
+];
+
+export const WR_PROPOSALS: ControllerAlterationProposal[] = [
+  {
+    id: 'prop-wr-001',
+    proposalCode: 'PR-WR-2026-215',
+    proposingUnit: 'Surat Station Master Unit (ST)',
+    proposingOfficer: 'P. K. Patel (Station Master)',
+    proposingRole: 'Station Master / Field Operations Unit',
+    reasonType: 'Track Defect / Rail Grinding Emergency',
+    title: 'Emergency Alteration: High-Speed Curve Rail Grinding at Ankleshwar (Km 288)',
+    description: 'Surat SSE reported gauge corner fatigue at Km 288 requiring 45-minute shift to avoid conflicting with Mumbai Rajdhani 12952.',
+    corridorId: 'wr-mumbai-vadodara',
+    targetSection: 'Surat – Bharuch Section (Km 280–295)',
+    targetLine: 'UP MAIN',
+    requestedShiftMinutes: 45,
+    urgency: 'High',
+    createdAt: '01:45 IST',
+    status: 'pending_consensus',
+    aiOptions: [
+      {
+        id: 'opt-wr-1',
+        title: 'Option 1: 45-Min Shift Window (Recommended)',
+        strategyBadge: 'Zero Passenger Conflict',
+        description: 'Shifts Block Window from 01:15–04:15 to 02:00–05:00. Clear run for Mumbai Rajdhani 12952 and Gandhinagar Vande Bharat 20901.',
+        revisedBlockWindow: {
+          blockId: 'blk-wr-01',
+          code: 'BLK-WR-2025-003',
+          newStartTime: '02:00',
+          newEndTime: '05:00',
+          durationMinutes: 180,
+          sectionName: 'Surat – Bharuch Section (Km 280–295)',
+          lineType: 'UP MAIN'
+        },
+        trainImpacts: [
+          { trainNumber: '12952', trainName: 'NDLS – Mumbai Central Rajdhani', action: 'Clear with Right of Way', delayMinutes: 0 },
+          { trainNumber: '20901', trainName: 'Gandhinagar Vande Bharat', action: 'Clear with Right of Way', delayMinutes: 0 },
+          { trainNumber: '12903', trainName: 'Golden Temple Mail', action: 'Regulate at Siding', delayMinutes: 20, regulatedStation: 'Vapi Loop' }
+        ],
+        metrics: {
+          punctualityIndex: 98.8,
+          avgDelayMinutes: 3.1,
+          possessionTimeSavedMinutes: 130,
+          safetyComplianceScore: 100,
+          throughputPreservedPercent: 96.8
+        },
+        recommended: true
+      }
+    ],
+    selectedOptionId: 'opt-wr-1',
+    concernedStations: [
+      { stationCode: 'MMCT', stationName: 'Mumbai Central', role: 'Terminal Area Controller', status: 'approved', remarks: 'Approved. Timetable path reserved.' },
+      { stationCode: 'ST', stationName: 'Surat', role: 'Originating Block Station Master', status: 'approved', remarks: 'Rail grinder RG-02 on standby.' },
+      { stationCode: 'BH', stationName: 'Bharuch Jn.', role: 'Adjacent Control Station Master', status: 'pending' },
+      { stationCode: 'BRC', stationName: 'Vadodara Jn.', role: 'Divisional Control Interchange', status: 'pending' }
+    ]
+  }
+];
+
+export const CORRIDOR_PROPOSALS: Record<string, ControllerAlterationProposal[]> = {
+  'ncr-hdn-1': NCR_PROPOSALS,
+  'er-grand-chord': ER_PROPOSALS,
+  'wr-mumbai-vadodara': WR_PROPOSALS
+};
+
+export const INITIAL_PROPOSALS: ControllerAlterationProposal[] = NCR_PROPOSALS;
