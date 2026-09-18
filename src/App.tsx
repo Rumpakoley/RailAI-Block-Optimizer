@@ -621,8 +621,21 @@ export default function App() {
     setAuditLogs(prev => [log, ...prev]);
   };
 
+  const handleTabChange = (tab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS') => {
+    setActiveTab(tab);
+    // Smooth scroll to top/content so mobile phone view immediately shifts to the chosen section
+    setTimeout(() => {
+      const contentEl = document.getElementById('main-tab-content');
+      if (contentEl) {
+        contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
   const handleGeneratePaperAuthority = () => {
-    setActiveTab('APPROVAL');
+    handleTabChange('APPROVAL');
   };
 
   const pendingProposalCount = proposals.filter(p => p.status === 'pending_consensus').length;
@@ -645,7 +658,7 @@ export default function App() {
         selectedCorridor={selectedCorridor}
         onSelectCorridor={handleSelectCorridor}
         activeTab={activeTab}
-        onChangeTab={setActiveTab}
+        onChangeTab={handleTabChange}
         currentSimMinutes={currentSimMinutes}
         isPlaying={isPlaying}
         onTogglePlay={() => setIsPlaying(p => !p)}
@@ -661,23 +674,27 @@ export default function App() {
         onStartTour={() => setIsTourOpen(true)}
       />
 
-      {/* Global Inter-Station Notification Banner */}
-      <StationNotificationBanner
-        proposals={proposals}
-        onOpenProposal={(propId) => {
-          setActiveTab('CONSENSUS');
-        }}
-      />
+      {/* Global Inter-Station Notification Banner (shown only on overview/optimizer/what-if/analytics, not consensus) */}
+      {activeTab !== 'CONSENSUS' && (
+        <StationNotificationBanner
+          proposals={proposals}
+          onOpenProposal={(propId) => {
+            handleTabChange('CONSENSUS');
+          }}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
-        {/* Executive 10-Second Summary for Judges */}
-        <ExecutiveSummaryBanner
-          corridor={selectedCorridor}
-          activeBlock={blocks[0] || null}
-          onRunDemo={() => setIsTourOpen(true)}
-          onGoToOptimizer={() => setActiveTab('OPTIMIZER')}
-        />
+        {/* Executive 10-Second Summary for Judges (shown on main live corridor graph overview) */}
+        {activeTab === 'STRING_GRAPH' && (
+          <ExecutiveSummaryBanner
+            corridor={selectedCorridor}
+            activeBlock={blocks[0] || null}
+            onRunDemo={() => setIsTourOpen(true)}
+            onGoToOptimizer={() => handleTabChange('OPTIMIZER')}
+          />
+        )}
 
         {/* Adversity & Manual Mode Control Panel (shown when engaged or in advanced mode) */}
         {manualMode.isManualMode && (
@@ -693,72 +710,75 @@ export default function App() {
             onGeneratePaperAuthority={handleGeneratePaperAuthority}
           />
         )}
-        {activeTab === 'STRING_GRAPH' && (
-          <StringDiagram
-            corridor={selectedCorridor}
-            trains={trains}
-            blocks={blocks}
-            currentSimulationMinutes={currentSimMinutes}
-            onSelectBlock={(b) => setSelectedBlock(b)}
-            onSelectTrain={(t) => setSelectedTrain(t)}
-          />
-        )}
 
-        {activeTab === 'OPTIMIZER' && (
-          <OptimizerView
-            corridor={selectedCorridor}
-            requisitions={requisitions}
-            blocks={blocks}
-            onAddRequisition={handleAddRequisition}
-            onApplyOptimization={handleApplyOptimization}
-            onSelectBlock={(b) => {
-              setSelectedBlock(b);
-              setActiveTab('APPROVAL');
-            }}
-          />
-        )}
+        <div id="main-tab-content" className="w-full scroll-mt-28">
+          {activeTab === 'STRING_GRAPH' && (
+            <StringDiagram
+              corridor={selectedCorridor}
+              trains={trains}
+              blocks={blocks}
+              currentSimulationMinutes={currentSimMinutes}
+              onSelectBlock={(b) => setSelectedBlock(b)}
+              onSelectTrain={(t) => setSelectedTrain(t)}
+            />
+          )}
 
-        {activeTab === 'WHAT_IF' && (
-          <WhatIfSimulator
-            corridor={selectedCorridor}
-            trains={trains}
-            blocks={blocks}
-            scenarios={scenarios}
-            onApplyScenario={handleApplyScenario}
-            onResetScenarios={handleResetScenarios}
-            onDynamicReplan={handleDynamicReplan}
-          />
-        )}
+          {activeTab === 'OPTIMIZER' && (
+            <OptimizerView
+              corridor={selectedCorridor}
+              requisitions={requisitions}
+              blocks={blocks}
+              onAddRequisition={handleAddRequisition}
+              onApplyOptimization={handleApplyOptimization}
+              onSelectBlock={(b) => {
+                setSelectedBlock(b);
+                handleTabChange('APPROVAL');
+              }}
+            />
+          )}
 
-        {activeTab === 'CONSENSUS' && (
-          <ControllerConsensusView
-            corridor={selectedCorridor}
-            blocks={blocks}
-            trains={trains}
-            proposals={proposals}
-            onCreateProposal={handleCreateProposal}
-            onSelectAIOption={handleSelectProposalOption}
-            onStationVote={handleStationVote}
-            onResetProposalToOriginal={handleResetProposalToOriginal}
-          />
-        )}
+          {activeTab === 'WHAT_IF' && (
+            <WhatIfSimulator
+              corridor={selectedCorridor}
+              trains={trains}
+              blocks={blocks}
+              scenarios={scenarios}
+              onApplyScenario={handleApplyScenario}
+              onResetScenarios={handleResetScenarios}
+              onDynamicReplan={handleDynamicReplan}
+            />
+          )}
 
-        {activeTab === 'APPROVAL' && (
-          <ApprovalWorkflow
-            corridor={selectedCorridor}
-            activeBlock={selectedBlock || blocks[0] || null}
-            onUpdateApprovals={handleUpdateApprovals}
-          />
-        )}
+          {activeTab === 'CONSENSUS' && (
+            <ControllerConsensusView
+              corridor={selectedCorridor}
+              blocks={blocks}
+              trains={trains}
+              proposals={proposals}
+              onCreateProposal={handleCreateProposal}
+              onSelectAIOption={handleSelectProposalOption}
+              onStationVote={handleStationVote}
+              onResetProposalToOriginal={handleResetProposalToOriginal}
+            />
+          )}
 
-        {activeTab === 'ANALYTICS' && (
-          <AnalyticsView
-            corridor={selectedCorridor}
-            blocks={blocks}
-            requisitions={requisitions}
-            auditLogs={auditLogs}
-          />
-        )}
+          {activeTab === 'APPROVAL' && (
+            <ApprovalWorkflow
+              corridor={selectedCorridor}
+              activeBlock={selectedBlock || blocks[0] || null}
+              onUpdateApprovals={handleUpdateApprovals}
+            />
+          )}
+
+          {activeTab === 'ANALYTICS' && (
+            <AnalyticsView
+              corridor={selectedCorridor}
+              blocks={blocks}
+              requisitions={requisitions}
+              auditLogs={auditLogs}
+            />
+          )}
+        </div>
       </main>
 
       {/* Footer */}
