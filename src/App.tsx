@@ -27,7 +27,6 @@ import {
 } from './data/mockData';
 import { Header } from './components/Header';
 import { AdversityManualModePanel } from './components/AdversityManualModePanel';
-import { ExecutiveSummaryBanner } from './components/ExecutiveSummaryBanner';
 import { GuidedTourModal } from './components/GuidedTourModal';
 import { StringDiagram } from './components/StringDiagram';
 import { OptimizerView } from './components/OptimizerView';
@@ -686,15 +685,6 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
-        {/* Executive 10-Second Summary for Judges (shown on main live corridor graph overview) */}
-        {activeTab === 'STRING_GRAPH' && (
-          <ExecutiveSummaryBanner
-            corridor={selectedCorridor}
-            activeBlock={blocks[0] || null}
-            onRunDemo={() => setIsTourOpen(true)}
-            onGoToOptimizer={() => handleTabChange('OPTIMIZER')}
-          />
-        )}
 
         {/* Adversity & Manual Mode Control Panel (shown when engaged or in advanced mode) */}
         {manualMode.isManualMode && (
