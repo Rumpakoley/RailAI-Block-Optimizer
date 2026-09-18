@@ -1,14 +1,14 @@
 import React from 'react';
-import { Corridor, ManualModeState } from '../types';
+import { Corridor, ManualModeState, NavigationTab } from '../types';
 import { minutesToTime } from '../utils/timeUtils';
-import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power, Compass, SlidersHorizontal, Eye } from 'lucide-react';
+import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power, Compass, SlidersHorizontal, Eye, Calendar, HardHat } from 'lucide-react';
 
 interface HeaderProps {
   corridors: Corridor[];
   selectedCorridor: Corridor;
   onSelectCorridor: (corridor: Corridor) => void;
-  activeTab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS';
-  onChangeTab: (tab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS') => void;
+  activeTab: NavigationTab;
+  onChangeTab: (tab: NavigationTab) => void;
   currentSimMinutes: number;
   isPlaying: boolean;
   onTogglePlay: () => void;
@@ -124,47 +124,75 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Main Navigation Tabs Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto">
-        <div className="flex items-center gap-1.5 py-2 text-xs font-semibold">
+        <div className="flex items-center gap-1.5 py-2 text-xs font-semibold whitespace-nowrap">
           {/* 1. Live Overview & String Graph */}
           <button
             id="nav-tab-string-graph"
             onClick={() => onChangeTab('STRING_GRAPH')}
-            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'STRING_GRAPH'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Train className="w-3.5 h-3.5" />
-            <span>{isSimpleMode ? '1. Live Corridor Graph' : 'Time-Space String Graph'}</span>
+            <span>{isSimpleMode ? '1. Live Graph' : 'Time-Space Graph'}</span>
           </button>
 
-          {/* 2. AI Optimizer & Bundler */}
+          {/* 2. Railway Routine & Timetable */}
+          <button
+            id="nav-tab-routine"
+            onClick={() => onChangeTab('ROUTINE')}
+            className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'ROUTINE'
+                ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
+                : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5 text-[#2563eb]" />
+            <span>{isSimpleMode ? '2. Railway Routine' : 'Timetable Routine'}</span>
+          </button>
+
+          {/* 3. Department Demands & Concerns */}
+          <button
+            id="nav-tab-departments"
+            onClick={() => onChangeTab('DEPARTMENTS')}
+            className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'DEPARTMENTS'
+                ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
+                : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
+            }`}
+          >
+            <HardHat className="w-3.5 h-3.5 text-[#C87428]" />
+            <span>{isSimpleMode ? '3. Dept Concerns' : 'Dept Demands (TMS/TDMS/SMMS)'}</span>
+          </button>
+
+          {/* 4. AI Optimizer & Bundler */}
           <button
             id="nav-tab-optimizer"
             onClick={() => onChangeTab('OPTIMIZER')}
-            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'OPTIMIZER'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>{isSimpleMode ? '2. AI Block Optimizer' : 'AI Optimizer & Bundler'}</span>
+            <span>{isSimpleMode ? '4. AI Optimizer' : 'AI Optimizer & Bundler'}</span>
           </button>
 
-          {/* 3. Inter-Station Consensus & Approval */}
+          {/* 5. Inter-Station Consensus & Approval */}
           <button
             id="nav-tab-consensus"
             onClick={() => onChangeTab('CONSENSUS')}
-            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 relative cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 relative cursor-pointer ${
               activeTab === 'CONSENSUS'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
-            <span>{isSimpleMode ? '3. Station Consensus & Approval' : 'Inter-Station Consensus'}</span>
+            <span>{isSimpleMode ? '5. Consensus' : 'Inter-Station Consensus'}</span>
             {pendingProposalCount && pendingProposalCount > 0 ? (
               <span className="px-1.5 py-0.2 rounded-full bg-[#C87428] text-white font-bold text-[9px] font-mono">
                 {pendingProposalCount}
@@ -177,7 +205,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-tab-what-if"
               onClick={() => onChangeTab('WHAT_IF')}
-              className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'WHAT_IF'
                   ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                   : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
@@ -195,28 +223,28 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-tab-approval"
               onClick={() => onChangeTab('APPROVAL')}
-              className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'APPROVAL'
                   ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                   : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
               }`}
             >
               <Shield className="w-3.5 h-3.5" />
-              <span>Sanctions Workflow</span>
+              <span>Sanctions</span>
             </button>
           )}
 
           <button
             id="nav-tab-analytics"
             onClick={() => onChangeTab('ANALYTICS')}
-            className={`px-4 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'ANALYTICS'
                 ? 'bg-[#181816] text-[#FAF7F2] font-bold shadow-xs'
                 : 'text-[#636059] hover:text-[#181816] hover:bg-[#F3EEE7]'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>{isSimpleMode ? '4. Impact & KPIs' : 'KPIs & Audit Trail'}</span>
+            <span>{isSimpleMode ? '6. KPIs' : 'KPIs & Audit'}</span>
           </button>
         </div>
 

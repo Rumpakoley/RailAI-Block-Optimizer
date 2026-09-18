@@ -274,4 +274,14 @@ export interface ManualModeState {
   manualCautionOrderActive: boolean;
 }
 
+export type NavigationTab = 
+  | 'STRING_GRAPH' 
+  | 'ROUTINE' 
+  | 'DEPARTMENTS' 
+  | 'OPTIMIZER' 
+  | 'WHAT_IF' 
+  | 'CONSENSUS' 
+  | 'APPROVAL' 
+  | 'ANALYTICS';
+
 

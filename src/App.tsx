@@ -10,7 +10,8 @@ import {
   SafetyChecklist, 
   ControllerAlterationProposal,
   AIRescheduleOption,
-  ManualModeState 
+  ManualModeState,
+  NavigationTab
 } from './types';
 import { 
   INITIAL_CORRIDORS, 
@@ -29,6 +30,8 @@ import { Header } from './components/Header';
 import { AdversityManualModePanel } from './components/AdversityManualModePanel';
 import { GuidedTourModal } from './components/GuidedTourModal';
 import { StringDiagram } from './components/StringDiagram';
+import { RoutineManagerView } from './components/RoutineManagerView';
+import { DepartmentPortalView } from './components/DepartmentPortalView';
 import { OptimizerView } from './components/OptimizerView';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { ControllerConsensusView } from './components/ControllerConsensusView';
@@ -53,7 +56,7 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
   const [proposals, setProposals] = useState<ControllerAlterationProposal[]>(INITIAL_PROPOSALS);
 
-  const [activeTab, setActiveTab] = useState<'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS'>('STRING_GRAPH');
+  const [activeTab, setActiveTab] = useState<NavigationTab>('STRING_GRAPH');
 
   // Simulation Clock (starts at 02:15 = 135 minutes)
   const [currentSimMinutes, setCurrentSimMinutes] = useState<number>(135);
@@ -620,7 +623,53 @@ export default function App() {
     setAuditLogs(prev => [log, ...prev]);
   };
 
-  const handleTabChange = (tab: 'STRING_GRAPH' | 'OPTIMIZER' | 'WHAT_IF' | 'CONSENSUS' | 'APPROVAL' | 'ANALYTICS') => {
+  const handleUpdateTrains = (newTrains: Train[]) => {
+    setTrains(newTrains);
+    const log: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: 'Timetable Operations Officer',
+      action: 'Working Time Table (WTT) Updated',
+      category: 'OPTIMIZATION',
+      details: `Updated active corridor schedule with ${newTrains.length} train routines.`
+    };
+    setAuditLogs(prev => [log, ...prev]);
+  };
+
+  const handleAddTrain = (newTrain: Train) => {
+    setTrains(prev => [newTrain, ...prev]);
+    const log: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: 'Operations Controller',
+      action: 'Special Train Injected',
+      category: 'OPTIMIZATION',
+      details: `Injected Train ${newTrain.number} (${newTrain.name}, Tier-${newTrain.priorityTier}) on ${newTrain.direction} line.`
+    };
+    setAuditLogs(prev => [log, ...prev]);
+  };
+
+  const handleRemoveTrain = (trainId: string) => {
+    const trainToRemove = trains.find(t => t.id === trainId);
+    setTrains(prev => prev.filter(t => t.id !== trainId));
+    if (trainToRemove) {
+      const log: AuditLogEntry = {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+        user: 'Operations Controller',
+        action: 'Train Path Cancelled / Withdrawn',
+        category: 'OPTIMIZATION',
+        details: `Cancelled Train ${trainToRemove.number} (${trainToRemove.name}) from corridor routine.`
+      };
+      setAuditLogs(prev => [log, ...prev]);
+    }
+  };
+
+  const handleRemoveRequisition = (reqId: string) => {
+    setRequisitions(prev => prev.filter(r => r.id !== reqId));
+  };
+
+  const handleTabChange = (tab: NavigationTab) => {
     setActiveTab(tab);
     // Smooth scroll to top/content so mobile phone view immediately shifts to the chosen section
     setTimeout(() => {
@@ -710,6 +759,27 @@ export default function App() {
               currentSimulationMinutes={currentSimMinutes}
               onSelectBlock={(b) => setSelectedBlock(b)}
               onSelectTrain={(t) => setSelectedTrain(t)}
+            />
+          )}
+
+          {activeTab === 'ROUTINE' && (
+            <RoutineManagerView
+              corridor={selectedCorridor}
+              trains={trains}
+              onUpdateTrains={handleUpdateTrains}
+              onAddTrain={handleAddTrain}
+              onRemoveTrain={handleRemoveTrain}
+              onGoToStringDiagram={() => handleTabChange('STRING_GRAPH')}
+            />
+          )}
+
+          {activeTab === 'DEPARTMENTS' && (
+            <DepartmentPortalView
+              corridor={selectedCorridor}
+              requisitions={requisitions}
+              onAddRequisition={handleAddRequisition}
+              onRemoveRequisition={handleRemoveRequisition}
+              onGoToOptimizer={() => handleTabChange('OPTIMIZER')}
             />
           )}
 
