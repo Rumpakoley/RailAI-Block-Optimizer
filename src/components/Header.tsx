@@ -1,7 +1,7 @@
 import React from 'react';
-import { Corridor, ManualModeState, NavigationTab } from '../types';
+import { Corridor, ManualModeState, NavigationTab, OfficialUser } from '../types';
 import { minutesToTime } from '../utils/timeUtils';
-import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power, Compass, SlidersHorizontal, Eye, Calendar, HardHat } from 'lucide-react';
+import { Sparkles, Play, Pause, Train, Layers, RefreshCw, Shield, Activity, Radio, AlertTriangle, Power, Compass, SlidersHorizontal, Eye, Calendar, HardHat, UserCheck } from 'lucide-react';
 
 interface HeaderProps {
   corridors: Corridor[];
@@ -22,6 +22,8 @@ interface HeaderProps {
   isSimpleMode: boolean;
   onToggleSimpleMode: () => void;
   onStartTour: () => void;
+  currentUser?: OfficialUser | null;
+  onOpenAuth?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -42,7 +44,9 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenManualMode,
   isSimpleMode,
   onToggleSimpleMode,
-  onStartTour
+  onStartTour,
+  currentUser,
+  onOpenAuth
 }) => {
   return (
     <header id="app-header" className="bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E6E0D4] sticky top-0 z-40">
@@ -65,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right Tools: Corridor, Clock, Mode Switch, Guided Tour, Copilot */}
+        {/* Right Tools: Corridor, Clock, Mode Switch, Guided Tour, Copilot, Official Profile */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Corridor Dropdown */}
           <div className="flex items-center bg-white rounded-full border border-[#E6E0D4] px-3 py-1 text-xs shadow-xs">
@@ -109,6 +113,42 @@ export const Header: React.FC<HeaderProps> = ({
             <Compass className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">60s Demo</span>
           </button>
+
+          {/* Official Profile Badge / Switcher */}
+          {currentUser ? (
+            <div className="flex items-center gap-1.5 pl-1.5 pr-2 py-1 rounded-full bg-white border border-[#E6E0D4] shadow-xs">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${currentUser.badgeColor}`}>
+                {currentUser.avatarInitials}
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[11px] font-bold text-[#181816] leading-tight line-clamp-1 max-w-[110px] sm:max-w-[150px]">
+                  {currentUser.name}
+                </span>
+                <span className="text-[8.5px] text-[#C87428] font-mono leading-none">
+                  {currentUser.hrmsId}
+                </span>
+              </div>
+              {onOpenAuth && (
+                <button
+                  onClick={onOpenAuth}
+                  className="ml-1 px-2 py-0.5 rounded-full bg-[#FAF7F2] hover:bg-[#F3EEE7] text-[#181816] text-[10px] font-bold border border-[#E6E0D4] transition cursor-pointer"
+                  title="Switch Official Role / Verify Identity"
+                >
+                  Switch
+                </button>
+              )}
+            </div>
+          ) : (
+            onOpenAuth && (
+              <button
+                onClick={onOpenAuth}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2D7A4D] hover:bg-[#24633E] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>Official Login</span>
+              </button>
+            )
+          )}
 
           {/* AI Copilot Trigger Button */}
           <button

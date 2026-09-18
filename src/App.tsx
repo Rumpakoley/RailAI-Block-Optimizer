@@ -9,9 +9,10 @@ import {
   Approvals, 
   SafetyChecklist, 
   ControllerAlterationProposal,
-  AIRescheduleOption,
+  StationVote,
   ManualModeState,
-  NavigationTab
+  NavigationTab,
+  OfficialUser
 } from './types';
 import { 
   INITIAL_CORRIDORS, 
@@ -41,9 +42,21 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { CopilotModal } from './components/CopilotModal';
 import { BlockDetailModal } from './components/BlockDetailModal';
 import { TrainDetailModal } from './components/TrainDetailModal';
+import { AuthLoginPortal } from './components/AuthLoginPortal';
 import { timeToMinutes } from './utils/timeUtils';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<OfficialUser | null>(() => {
+    try {
+      const saved = localStorage.getItem('railai_auth_user');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      // ignore
+    }
+    return null; // Prompt login for unauthenticated personnel
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
   const [isSimpleMode, setIsSimpleMode] = useState<boolean>(true);
   const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
   const [corridors] = useState<Corridor[]>(INITIAL_CORRIDORS);
@@ -686,6 +699,36 @@ export default function App() {
     handleTabChange('APPROVAL');
   };
 
+  const handleLoginSuccess = (user: OfficialUser) => {
+    setCurrentUser(user);
+    setIsAuthModalOpen(false);
+    try {
+      localStorage.setItem('railai_auth_user', JSON.stringify(user));
+    } catch (e) {
+      // ignore
+    }
+
+    const authLog: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
+      user: `${user.name} (${user.designation})`,
+      action: 'Official Identity Verified & Session Authenticated',
+      category: 'APPROVAL',
+      details: `Granted security clearance [${user.clearanceLevel}] for ${user.department}, ${user.zone}.`
+    };
+    setAuditLogs(prev => [authLog, ...prev]);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setIsAuthModalOpen(true);
+    try {
+      localStorage.removeItem('railai_auth_user');
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const pendingProposalCount = proposals.filter(p => p.status === 'pending_consensus').length;
 
   const handleSelectCorridor = (corridor: Corridor) => {
@@ -720,6 +763,8 @@ export default function App() {
         isSimpleMode={isSimpleMode}
         onToggleSimpleMode={() => setIsSimpleMode(prev => !prev)}
         onStartTour={() => setIsTourOpen(true)}
+        currentUser={currentUser}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
       {/* Global Inter-Station Notification Banner (shown only on overview/optimizer/what-if/analytics, not consensus) */}
@@ -893,6 +938,16 @@ export default function App() {
           setActiveTab(tab);
         }}
       />
+
+      {/* Official Identity Verification & Login Portal */}
+      {(!currentUser || isAuthModalOpen) && (
+        <AuthLoginPortal
+          currentUser={currentUser}
+          onLoginSuccess={handleLoginSuccess}
+          onCancel={currentUser ? () => setIsAuthModalOpen(false) : undefined}
+          isSwitching={!!currentUser}
+        />
+      )}
     </div>
   );
 }

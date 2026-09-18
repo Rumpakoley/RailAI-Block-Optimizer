@@ -284,4 +284,28 @@ export type NavigationTab =
   | 'APPROVAL' 
   | 'ANALYTICS';
 
+export type OfficialRole = 
+  | 'CHIEF_OPERATIONS_MANAGER'
+  | 'SECTION_CONTROLLER'
+  | 'SSE_PWAY'
+  | 'SSE_TRD'
+  | 'SSE_ST'
+  | 'STATION_MASTER'
+  | 'CRS_SAFETY_AUDITOR';
+
+export interface OfficialUser {
+  id: string;
+  hrmsId: string;
+  name: string;
+  designation: string;
+  role: OfficialRole;
+  department: string;
+  zone: string;
+  division: string;
+  postingStation?: string;
+  clearanceLevel: 'LEVEL_1_ZONAL_HQ' | 'LEVEL_2_DIVISION_CONTROL' | 'LEVEL_3_DEPT_ENGINEER' | 'LEVEL_4_STATION_MASTER' | 'LEVEL_5_SAFETY_AUDITOR';
+  avatarInitials: string;
+  badgeColor: string;
+}
+
 
