@@ -65,6 +65,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [selectedAIRoutineOption, setSelectedAIRoutineOption] = useState<'OPTION_A' | 'OPTION_B' | 'OPTION_C'>('OPTION_A');
+  const [lastInjectedTrainId, setLastInjectedTrainId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -85,8 +86,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
       },
       trainImpactSummary: 'Rajdhani (0m delay) • Vande Bharat (0m delay) • Freight BOXN (Regulate 22m at Loop)',
       applyChanges: () => {
-        const baseTrains = CORRIDOR_TRAINS[corridor.id] || CORRIDOR_TRAINS['ncr-hdn-1'];
-        const updated = baseTrains.map(t => {
+        const updated = trains.map(t => {
           if (t.type.includes('Freight')) {
             return { ...t, currentDelayMinutes: 22, currentStatus: 'Regulated at Siding' as const, regulatedAtStation: corridor.stations[1]?.name || 'Loop' };
           }
@@ -112,8 +112,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
       },
       trainImpactSummary: 'Freight BOXN (0m delay) • Rajdhani (0m delay) • Mail/Express (+4m caution buffer)',
       applyChanges: () => {
-        const baseTrains = CORRIDOR_TRAINS[corridor.id] || CORRIDOR_TRAINS['ncr-hdn-1'];
-        const updated = baseTrains.map(t => {
+        const updated = trains.map(t => {
           if (t.type === 'Mail / Express') {
             return { ...t, currentDelayMinutes: 4, currentStatus: 'Running Late' as const, regulatedAtStation: undefined };
           }
@@ -139,8 +138,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
       },
       trainImpactSummary: 'Mega 210m Shadow Block • Universal 30 km/h Caution Order • +6m buffer on 2 trains',
       applyChanges: () => {
-        const baseTrains = CORRIDOR_TRAINS[corridor.id] || CORRIDOR_TRAINS['ncr-hdn-1'];
-        const updated = baseTrains.map((t, idx) => {
+        const updated = trains.map((t, idx) => {
           if (idx >= 2) {
             return { ...t, currentDelayMinutes: 8, currentStatus: 'Running Late' as const, regulatedAtStation: undefined };
           }
@@ -153,6 +151,22 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
     }
   ];
 
+  // Helper to compute progressive default stop timings
+  const getDefaultStops = (dir: 'UP' | 'DOWN') => {
+    const initial: { [code: string]: { arr: string; dep: string; stop: boolean } } = {};
+    const stationsList = dir === 'UP' ? [...corridor.stations].reverse() : corridor.stations;
+    stationsList.forEach((st, idx) => {
+      const baseHour = (6 + idx * 2) % 24;
+      const hourStr = baseHour < 10 ? `0${baseHour}` : `${baseHour}`;
+      initial[st.code] = {
+        arr: `${hourStr}:00`,
+        dep: `${hourStr}:05`,
+        stop: idx === 0 || idx === stationsList.length - 1
+      };
+    });
+    return initial;
+  };
+
   // New Train Form State
   const [newTrainNumber, setNewTrainNumber] = useState('');
   const [newTrainName, setNewTrainName] = useState('');
@@ -162,37 +176,20 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
   const [newTrainSpeed, setNewTrainSpeed] = useState<number>(100);
   const [newTrainOrigin, setNewTrainOrigin] = useState(corridor.stations[0]?.name || 'Origin');
   const [newTrainDestination, setNewTrainDestination] = useState(corridor.stations[corridor.stations.length - 1]?.name || 'Destination');
-  const [newTrainStops, setNewTrainStops] = useState<{ [code: string]: { arr: string; dep: string; stop: boolean } }>(() => {
-    const initial: { [code: string]: { arr: string; dep: string; stop: boolean } } = {};
-    corridor.stations.forEach((st, idx) => {
-      const baseHour = 6 + idx * 2;
-      const hourStr = baseHour < 10 ? `0${baseHour}` : `${baseHour}`;
-      initial[st.code] = {
-        arr: `${hourStr}:00`,
-        dep: `${hourStr}:05`,
-        stop: idx === 0 || idx === corridor.stations.length - 1
-      };
-    });
-    return initial;
-  });
+  const [newTrainStops, setNewTrainStops] = useState<{ [code: string]: { arr: string; dep: string; stop: boolean } }>(() => getDefaultStops('DOWN'));
 
   useEffect(() => {
     if (corridor.stations.length > 0) {
-      setNewTrainOrigin(corridor.stations[0].name);
-      setNewTrainDestination(corridor.stations[corridor.stations.length - 1].name);
-      const updated: { [code: string]: { arr: string; dep: string; stop: boolean } } = {};
-      corridor.stations.forEach((st, idx) => {
-        const baseHour = 6 + idx * 2;
-        const hourStr = baseHour < 10 ? `0${baseHour}` : `${baseHour}`;
-        updated[st.code] = {
-          arr: `${hourStr}:00`,
-          dep: `${hourStr}:05`,
-          stop: idx === 0 || idx === corridor.stations.length - 1
-        };
-      });
-      setNewTrainStops(updated);
+      if (newTrainDirection === 'DOWN') {
+        setNewTrainOrigin(corridor.stations[0].name);
+        setNewTrainDestination(corridor.stations[corridor.stations.length - 1].name);
+      } else {
+        setNewTrainOrigin(corridor.stations[corridor.stations.length - 1].name);
+        setNewTrainDestination(corridor.stations[0].name);
+      }
+      setNewTrainStops(getDefaultStops(newTrainDirection));
     }
-  }, [corridor.id]);
+  }, [corridor.id, newTrainDirection]);
 
   // Filtered trains
   const filteredTrains = trains.filter(t => {
@@ -314,7 +311,10 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
     e.preventDefault();
     if (!newTrainNumber || !newTrainName) return;
 
-    const stops: TrainScheduleStop[] = corridor.stations.map((st) => {
+    // Order stations along the direction of travel
+    const orderedStations = newTrainDirection === 'UP' ? [...corridor.stations].reverse() : corridor.stations;
+
+    const stops: TrainScheduleStop[] = orderedStations.map((st) => {
       const stopInfo = newTrainStops[st.code] || { arr: '08:00', dep: '08:05', stop: true };
       return {
         stationCode: st.code,
@@ -352,9 +352,18 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
     };
 
     onAddTrain(newTrain);
+    setLastInjectedTrainId(newTrain.id);
     setIsAddModalOpen(false);
     setUploadSuccessMessage(`Successfully injected Train ${newTrain.number} (${newTrain.name}) into ${corridor.name} schedule.`);
     
+    // Auto scroll down to schedule table so the user immediately sees it
+    setTimeout(() => {
+      const tableElem = document.getElementById('routine-schedule-table');
+      if (tableElem) {
+        tableElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 150);
+
     // Reset Form
     setNewTrainNumber('');
     setNewTrainName('');
@@ -433,17 +442,37 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
 
         {/* Feedback Alert Messages */}
         {uploadSuccessMessage && (
-          <div className="mt-4 p-3 rounded-2xl bg-[#EBF5EE] border border-[#C6E7D2] text-[#2D7A4D] flex items-center justify-between text-xs font-medium">
+          <div className="mt-4 p-3.5 rounded-2xl bg-[#EBF5EE] border border-[#C6E7D2] text-[#2D7A4D] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-medium">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0 text-[#2D7A4D]" />
               <span>{uploadSuccessMessage}</span>
             </div>
-            <button 
-              onClick={() => setUploadSuccessMessage(null)}
-              className="text-[#2D7A4D] hover:underline font-bold text-[11px]"
-            >
-              Dismiss
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  const tableElem = document.getElementById('routine-schedule-table');
+                  if (tableElem) tableElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="px-3 py-1 rounded-full bg-[#2D7A4D] text-white hover:bg-[#24633E] font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer transition"
+              >
+                <span>↓ View in Schedule Below</span>
+              </button>
+              <button
+                type="button"
+                onClick={onGoToStringDiagram}
+                className="px-3 py-1 rounded-full bg-[#181816] text-white hover:bg-[#2C2B27] font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer transition"
+              >
+                <span>📈 Live Graph</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+              <button 
+                onClick={() => setUploadSuccessMessage(null)}
+                className="text-[#2D7A4D] hover:underline font-bold text-xs px-1"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         )}
 
@@ -614,7 +643,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
       </div>
 
       {/* Routine Table & Filters */}
-      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-5 shadow-sm flex flex-col gap-4">
+      <div id="routine-schedule-table" className="bg-white border border-[#E6E0D4] rounded-3xl p-5 shadow-sm flex flex-col gap-4 scroll-mt-24">
         {/* Controls Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Search Box */}
@@ -636,12 +665,14 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
               onChange={e => setFilterType(e.target.value)}
               className="px-3 py-1.5 rounded-full border border-[#E6E0D4] bg-[#FAF7F2] text-xs font-medium text-[#181816] focus:outline-none cursor-pointer"
             >
-              <option value="ALL">All Train Types</option>
+              <option value="ALL">All Train Types ({trains.length})</option>
               <option value="Vande Bharat">Vande Bharat</option>
               <option value="Rajdhani / Shatabdi">Rajdhani / Shatabdi</option>
               <option value="Mail / Express">Mail / Express</option>
+              <option value="Suburban EMU">Suburban EMU / Local</option>
               <option value="Freight (Coal Rake)">Freight (Coal)</option>
               <option value="Freight (Container)">Freight (Container)</option>
+              <option value="Departmental Material">Departmental Material</option>
             </select>
 
             <select
@@ -650,7 +681,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
               className="px-3 py-1.5 rounded-full border border-[#E6E0D4] bg-[#FAF7F2] text-xs font-medium text-[#181816] focus:outline-none cursor-pointer"
             >
               <option value="ALL">All Directions</option>
-              <option value="UP">UP Direction (Towards Delhi / Terminus)</option>
+              <option value="UP">UP Direction (Towards Terminus / Delhi)</option>
               <option value="DOWN">DOWN Direction (Away from Delhi)</option>
             </select>
           </div>
@@ -672,8 +703,17 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE7DC]">
-              {filteredTrains.map(train => (
-                <tr key={train.id} className="hover:bg-[#FAF7F2]/60 transition">
+              {filteredTrains.map(train => {
+                const isNewlyInjected = train.id === lastInjectedTrainId || train.id.startsWith('tr-custom-') || train.id.startsWith('tr-csv-');
+                return (
+                <tr 
+                  key={train.id} 
+                  className={`transition ${
+                    isNewlyInjected 
+                      ? 'bg-[#EBF5EE]/50 hover:bg-[#EBF5EE]/80' 
+                      : 'hover:bg-[#FAF7F2]/60'
+                  }`}
+                >
                   {/* Number & Name */}
                   <td className="p-3 pl-4">
                     <div className="flex items-center gap-2">
@@ -682,9 +722,16 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
                         style={{ backgroundColor: train.routeColor }}
                       />
                       <div>
-                        <span className="font-mono font-bold text-[#181816] text-xs block">
-                          {train.number}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-[#181816] text-xs">
+                            {train.number}
+                          </span>
+                          {isNewlyInjected && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#2D7A4D] text-white font-mono uppercase tracking-wide">
+                              Injected
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[11px] text-[#636059] line-clamp-1">
                           {train.name}
                         </span>
@@ -762,14 +809,15 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
                   <td className="p-3 text-right pr-4">
                     <button
                       onClick={() => onRemoveTrain(train.id)}
-                      className="p-1.5 rounded-lg text-[#8F8A80] hover:text-[#DC2626] hover:bg-[#FDF2F2] transition cursor-pointer"
-                      title="Remove from active timetable"
+                      className="p-1.5 rounded-lg hover:bg-[#FDF2F2] text-[#8F8A80] hover:text-[#DC2626] transition cursor-pointer"
+                      title="Withdraw / Cancel Train from Timetable"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </div>
@@ -833,6 +881,7 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
                     className="w-full px-3 py-2 rounded-xl border border-[#E6E0D4] bg-[#FAF7F2] text-xs focus:outline-none"
                   >
                     <option value="Mail / Express">Mail / Express</option>
+                    <option value="Suburban EMU">Suburban EMU / Local</option>
                     <option value="Vande Bharat">Vande Bharat</option>
                     <option value="Rajdhani / Shatabdi">Rajdhani / Shatabdi</option>
                     <option value="Freight (Coal Rake)">Freight (Coal)</option>
@@ -848,8 +897,8 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
                     onChange={e => setNewTrainDirection(e.target.value as 'UP' | 'DOWN')}
                     className="w-full px-3 py-2 rounded-xl border border-[#E6E0D4] bg-[#FAF7F2] text-xs focus:outline-none font-mono"
                   >
-                    <option value="UP">UP Line</option>
-                    <option value="DOWN">DOWN Line</option>
+                    <option value="UP">UP Line (Towards Terminus)</option>
+                    <option value="DOWN">DOWN Line (Away from Delhi/HWH)</option>
                   </select>
                 </div>
 
@@ -919,10 +968,10 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
               {/* Station Stop Timings */}
               <div>
                 <label className="font-bold text-[#181816] block mb-1">
-                  Corridor Station Schedule (24-Hour Format)
+                  Corridor Station Schedule (24-Hour Format • Ordered along direction of travel)
                 </label>
                 <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#E6E0D4] flex flex-col gap-2 max-h-44 overflow-y-auto">
-                  {corridor.stations.map((st) => {
+                  {(newTrainDirection === 'UP' ? [...corridor.stations].reverse() : corridor.stations).map((st) => {
                     const current = newTrainStops[st.code] || { arr: '08:00', dep: '08:05', stop: true };
                     return (
                       <div key={st.code} className="flex items-center justify-between gap-2 py-1 border-b border-[#EDE7DC] last:border-b-0">
