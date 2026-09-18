@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Corridor, Train, TrainType, TrainScheduleStop } from '../types';
 import { 
   Train as TrainIcon, 
@@ -21,6 +21,25 @@ import {
   Layers
 } from 'lucide-react';
 import { CORRIDOR_TRAINS } from '../data/mockData';
+
+const MAJOR_JUNCTIONS = [
+  { name: 'New Delhi', code: 'NDLS' },
+  { name: 'Howrah Jn.', code: 'HWH' },
+  { name: 'Mumbai Central', code: 'MMCT' },
+  { name: 'Varanasi Jn.', code: 'BSB' },
+  { name: 'Patna Jn.', code: 'PNBE' },
+  { name: 'Ahmedabad Jn.', code: 'ADI' },
+  { name: 'Chennai Central', code: 'MAS' },
+  { name: 'KSR Bengaluru', code: 'SBC' },
+  { name: 'Sealdah', code: 'SDAH' },
+  { name: 'Kanpur Central', code: 'CNB' },
+  { name: 'Prayagraj Jn.', code: 'PRYJ' },
+  { name: 'Pt. Deen Dayal Upadhyaya Jn.', code: 'DDU' },
+  { name: 'Gorakhpur Jn.', code: 'GKP' },
+  { name: 'Amritsar Jn.', code: 'ASR' },
+  { name: 'Guwahati', code: 'GHY' },
+  { name: 'Secunderabad Jn.', code: 'SC' }
+];
 
 interface RoutineManagerViewProps {
   corridor: Corridor;
@@ -156,6 +175,24 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
     });
     return initial;
   });
+
+  useEffect(() => {
+    if (corridor.stations.length > 0) {
+      setNewTrainOrigin(corridor.stations[0].name);
+      setNewTrainDestination(corridor.stations[corridor.stations.length - 1].name);
+      const updated: { [code: string]: { arr: string; dep: string; stop: boolean } } = {};
+      corridor.stations.forEach((st, idx) => {
+        const baseHour = 6 + idx * 2;
+        const hourStr = baseHour < 10 ? `0${baseHour}` : `${baseHour}`;
+        updated[st.code] = {
+          arr: `${hourStr}:00`,
+          dep: `${hourStr}:05`,
+          stop: idx === 0 || idx === corridor.stations.length - 1
+        };
+      });
+      setNewTrainStops(updated);
+    }
+  }, [corridor.id]);
 
   // Filtered trains
   const filteredTrains = trains.filter(t => {
@@ -832,22 +869,50 @@ export const RoutineManagerView: React.FC<RoutineManagerViewProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-[#181816] block mb-1">Origin Station</label>
-                  <input
-                    type="text"
+                  <select
                     value={newTrainOrigin}
                     onChange={e => setNewTrainOrigin(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E6E0D4] bg-[#FAF7F2] text-xs focus:outline-none"
-                  />
+                    className="w-full px-3 py-2 rounded-xl border border-[#E6E0D4] bg-[#FAF7F2] text-xs focus:outline-none focus:border-[#181816] cursor-pointer"
+                  >
+                    <optgroup label={`Corridor Stations (${corridor.name})`}>
+                      {corridor.stations.map((st) => (
+                        <option key={`origin-st-${st.code}`} value={st.name}>
+                          {st.name} ({st.code})
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Major Junctions & Terminals">
+                      {MAJOR_JUNCTIONS.filter(j => !corridor.stations.some(s => s.code === j.code)).map((j) => (
+                        <option key={`origin-maj-${j.code}`} value={j.name}>
+                          {j.name} ({j.code})
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
                 </div>
 
                 <div>
                   <label className="font-bold text-[#181816] block mb-1">Destination Station</label>
-                  <input
-                    type="text"
+                  <select
                     value={newTrainDestination}
                     onChange={e => setNewTrainDestination(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E6E0D4] bg-[#FAF7F2] text-xs focus:outline-none"
-                  />
+                    className="w-full px-3 py-2 rounded-xl border border-[#E6E0D4] bg-[#FAF7F2] text-xs focus:outline-none focus:border-[#181816] cursor-pointer"
+                  >
+                    <optgroup label={`Corridor Stations (${corridor.name})`}>
+                      {corridor.stations.map((st) => (
+                        <option key={`dest-st-${st.code}`} value={st.name}>
+                          {st.name} ({st.code})
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Major Junctions & Terminals">
+                      {MAJOR_JUNCTIONS.filter(j => !corridor.stations.some(s => s.code === j.code)).map((j) => (
+                        <option key={`dest-maj-${j.code}`} value={j.name}>
+                          {j.name} ({j.code})
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
                 </div>
               </div>
 
