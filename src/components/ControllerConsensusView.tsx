@@ -7,7 +7,8 @@ import {
   AIRescheduleOption, 
   StationVote, 
   ProposalReasonType,
-  UrgencyLevel
+  UrgencyLevel,
+  OfficialUser
 } from '../types';
 import { 
   ShieldAlert, 
@@ -23,7 +24,9 @@ import {
   X, 
   ThumbsUp, 
   ThumbsDown,
-  Clock
+  Clock,
+  Building2,
+  UserCheck
 } from 'lucide-react';
 
 interface ControllerConsensusViewProps {
@@ -31,6 +34,7 @@ interface ControllerConsensusViewProps {
   blocks: BlockWindow[];
   trains: Train[];
   proposals: ControllerAlterationProposal[];
+  currentUser?: OfficialUser | null;
   onCreateProposal: (newProposal: ControllerAlterationProposal) => void;
   onSelectAIOption: (proposalId: string, optionId: string) => void;
   onStationVote: (proposalId: string, stationCode: string, status: 'approved' | 'rejected', remarks?: string) => void;
@@ -42,6 +46,7 @@ export const ControllerConsensusView: React.FC<ControllerConsensusViewProps> = (
   blocks,
   trains,
   proposals,
+  currentUser,
   onCreateProposal,
   onSelectAIOption,
   onStationVote,
@@ -272,6 +277,54 @@ export const ControllerConsensusView: React.FC<ControllerConsensusViewProps> = (
           <span>{isCreatingNew ? 'View Active Proposals' : 'Propose Emergency Alteration'}</span>
         </button>
       </div>
+
+      {/* Logged in Station Master Action Desk Card */}
+      {currentUser?.role === 'STATION_MASTER' && currentProposal && (
+        <div className="p-5 rounded-3xl bg-[#181816] text-white border-2 border-[#C87428]/40 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg animate-fadeIn">
+          <div className="flex items-start gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-[#C87428] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
+              {currentUser.avatarInitials}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#C87428]/20 text-[#C87428] border border-[#C87428]/40 uppercase font-mono tracking-wider">
+                  Station Master Clearance Desk
+                </span>
+                <span className="text-xs text-[#A8A29E] font-mono">• {currentUser.postingStation || 'Your Station'}</span>
+              </div>
+              <h4 className="text-sm font-bold text-white mt-1">
+                {currentUser.name} ({currentUser.designation})
+              </h4>
+              <p className="text-[11px] text-[#A8A29E] mt-0.5 max-w-xl">
+                Proposal <strong>{currentProposal.proposalCode}</strong> is awaiting station master concurrence for yard loops & platform clearances.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => {
+                const targetStation = currentProposal.concernedStations[0]?.stationCode || 'CNB';
+                onStationVote(currentProposal.id, targetStation, 'approved', 'Station Master verified yard loops and local rake clearance.');
+              }}
+              className="px-4 py-2.5 rounded-full bg-[#2D7A4D] hover:bg-[#24633E] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95"
+            >
+              <ThumbsUp className="w-3.5 h-3.5" />
+              <span>Grant Station Approval</span>
+            </button>
+            <button
+              onClick={() => {
+                const targetStation = currentProposal.concernedStations[0]?.stationCode || 'CNB';
+                onStationVote(currentProposal.id, targetStation, 'rejected', 'Local platform conflict / requested timing shift.');
+              }}
+              className="px-4 py-2.5 rounded-full bg-[#C53030] hover:bg-[#991B1B] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95"
+            >
+              <ThumbsDown className="w-3.5 h-3.5" />
+              <span>Reject / Shift</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* NEW PROPOSAL CREATOR FORM MODAL / DRAWER */}
       {isCreatingNew && (

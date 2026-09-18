@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Corridor, Requisition, Department, UrgencyLevel } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Corridor, Requisition, Department, UrgencyLevel, ControllerAlterationProposal, OfficialUser } from '../types';
 import { 
   Wrench, 
   Zap, 
@@ -18,33 +18,62 @@ import {
   HardHat,
   Cpu,
   Sparkles,
-  Check
+  Check,
+  Building2,
+  UserCheck
 } from 'lucide-react';
 
 interface DepartmentPortalViewProps {
   corridor: Corridor;
   requisitions: Requisition[];
+  proposals?: ControllerAlterationProposal[];
+  currentUser?: OfficialUser | null;
   onAddRequisition: (req: Requisition) => void;
   onRemoveRequisition?: (reqId: string) => void;
   onGoToOptimizer: () => void;
+  onGoToConsensus?: () => void;
 }
 
 export const DepartmentPortalView: React.FC<DepartmentPortalViewProps> = ({
   corridor,
   requisitions,
+  proposals = [],
+  currentUser,
   onAddRequisition,
   onRemoveRequisition,
-  onGoToOptimizer
+  onGoToOptimizer,
+  onGoToConsensus
 }) => {
-  const [selectedDeptTab, setSelectedDeptTab] = useState<Department | 'ALL'>('ALL');
+  const [selectedDeptTab, setSelectedDeptTab] = useState<Department | 'ALL'>(
+    currentUser?.role === 'SSE_PWAY' ? 'P-Way' :
+    currentUser?.role === 'SSE_TRD' ? 'TRD' :
+    currentUser?.role === 'SSE_ST' ? 'S&T' : 'ALL'
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [filterUrgency, setFilterUrgency] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [successToast, setSuccessToast] = useState<string | null>(null);
 
+  // Auto-sync department with logged in user profile
+  useEffect(() => {
+    if (currentUser?.role === 'SSE_PWAY') {
+      setSelectedDeptTab('P-Way');
+      setFormDept('P-Way');
+    } else if (currentUser?.role === 'SSE_TRD') {
+      setSelectedDeptTab('TRD');
+      setFormDept('TRD');
+    } else if (currentUser?.role === 'SSE_ST') {
+      setSelectedDeptTab('S&T');
+      setFormDept('S&T');
+    }
+  }, [currentUser?.role]);
+
   // Form State
-  const [formDept, setFormDept] = useState<Department>('P-Way');
+  const [formDept, setFormDept] = useState<Department>(
+    currentUser?.role === 'SSE_TRD' ? 'TRD' :
+    currentUser?.role === 'SSE_ST' ? 'S&T' : 'P-Way'
+  );
   const [formSubsystem, setFormSubsystem] = useState('Plain Track Tamping & Alignment');
   const [formTitle, setFormTitle] = useState('');
   const [formSectionName, setFormSectionName] = useState(
@@ -310,6 +339,115 @@ export const DepartmentPortalView: React.FC<DepartmentPortalViewProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Inter-Station Approval & Rejection Tracker for Department Demands */}
+      <div className="bg-white border border-[#E6E0D4] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE7DC] pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-[#EBF5EE] text-[#2D7A4D] shrink-0">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#181816] text-white font-mono uppercase tracking-wider">
+                  Station Master Approval Tracker
+                </span>
+                <span className="text-xs text-[#636059]">
+                  • Live Station Approvals & Rejections for Maintenance Blocks
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-[#181816] mt-0.5">
+                Department Possession Requests: Station Master Voting & Sanction Status
+              </h3>
+            </div>
+          </div>
+
+          {onGoToConsensus && (
+            <button
+              onClick={onGoToConsensus}
+              className="px-3.5 py-2 rounded-full bg-[#FAF7F2] hover:bg-[#F3EEE7] text-[#181816] border border-[#E6E0D4] text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <span>Inter-Station Consensus Desk</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#C87428]" />
+            </button>
+          )}
+        </div>
+
+        {/* Proposals / Active Blocks Station Approval Breakdown */}
+        {proposals && proposals.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {proposals.map((proposal) => {
+              const approvedStations = proposal.concernedStations.filter(s => s.status === 'approved');
+              const isFullyApproved = proposal.status === 'approved_committed';
+              const isRejected = proposal.status === 'rejected_reverted';
+
+              return (
+                <div key={proposal.id} className="p-4 rounded-2xl border border-[#E6E0D4] bg-[#FAF7F2] flex flex-col justify-between gap-3">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-white text-[#181816] border border-[#E6E0D4]">
+                        {proposal.proposalCode}
+                      </span>
+                      <span className={`text-[10.5px] font-bold font-mono px-2.5 py-0.5 rounded-full border ${
+                        isFullyApproved
+                          ? 'bg-[#EBF5EE] text-[#2D7A4D] border-[#C6E7D2]'
+                          : isRejected
+                          ? 'bg-[#FDF2F2] text-[#DC2626] border-[#F8D7DA]'
+                          : 'bg-[#FDF3EA] text-[#C87428] border-[#F7D4B8]'
+                      }`}>
+                        {isFullyApproved ? '✓ 100% Station Approved' : isRejected ? '✗ Station Rejected / Altered' : '⏳ Pending Station Votes'}
+                      </span>
+                    </div>
+
+                    <h4 className="font-bold text-[#181816] text-xs">
+                      {proposal.title}
+                    </h4>
+                    <p className="text-[11px] text-[#636059] leading-relaxed">
+                      Section: <strong>{proposal.targetSection}</strong> ({proposal.targetLine}) • Requested Shift: +{proposal.requestedShiftMinutes}m
+                    </p>
+
+                    {/* Station-by-Station Voting List */}
+                    <div className="pt-2 border-t border-[#EDE7DC] flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between text-[10px] uppercase font-bold text-[#8F8A80] tracking-wider">
+                        <span>Station Master Voting Status:</span>
+                        <span className="text-[#181816] font-mono font-bold">
+                          {approvedStations.length}/{proposal.concernedStations.length} Approved
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        {proposal.concernedStations.map(st => (
+                          <div
+                            key={st.stationCode}
+                            className={`p-2 rounded-xl border flex items-center justify-between gap-2 text-[11px] ${
+                              st.status === 'approved'
+                                ? 'bg-white border-[#C6E7D2] text-[#2D7A4D]'
+                                : st.status === 'rejected'
+                                ? 'bg-[#FEF9F9] border-[#F8D7D7] text-[#DC2626]'
+                                : 'bg-white border-[#E6E0D4] text-[#636059]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 font-mono">
+                              <strong className="text-[#181816]">{st.stationCode}</strong>
+                              <span className="text-[10px] text-[#8F8A80]">({st.stationName.split(' ')[0]})</span>
+                            </div>
+                            <span className="font-bold text-[10.5px]">
+                              {st.status === 'approved' ? '✓ Approved' : st.status === 'rejected' ? '✗ Rejected' : '⏳ Pending'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-4 rounded-2xl bg-[#FAF7F2] text-xs text-[#636059] text-center">
+            No active alteration proposals pending inter-station consensus. All maintenance demands are scheduled directly by CP-SAT.
+          </div>
+        )}
       </div>
 
       {/* Main Department Tabs & Table Card */}

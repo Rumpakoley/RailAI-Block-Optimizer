@@ -708,6 +708,19 @@ export default function App() {
       // ignore
     }
 
+    // Role-based landing tab redirection
+    if (user.role === 'STATION_MASTER') {
+      setActiveTab('CONSENSUS');
+    } else if (user.role === 'SSE_PWAY' || user.role === 'SSE_TRD' || user.role === 'SSE_ST') {
+      setActiveTab('DEPARTMENTS');
+    } else if (user.role === 'CRS_SAFETY_AUDITOR') {
+      setActiveTab('APPROVAL');
+    } else if (user.role === 'CHIEF_OPERATIONS_MANAGER') {
+      setActiveTab('OPTIMIZER');
+    } else {
+      setActiveTab('STRING_GRAPH');
+    }
+
     const authLog: AuditLogEntry = {
       id: `aud-${Date.now()}`,
       timestamp: new Date().toLocaleTimeString('en-IN') + ' IST',
@@ -822,9 +835,12 @@ export default function App() {
             <DepartmentPortalView
               corridor={selectedCorridor}
               requisitions={requisitions}
+              proposals={proposals}
+              currentUser={currentUser}
               onAddRequisition={handleAddRequisition}
               onRemoveRequisition={handleRemoveRequisition}
               onGoToOptimizer={() => handleTabChange('OPTIMIZER')}
+              onGoToConsensus={() => handleTabChange('CONSENSUS')}
             />
           )}
 
@@ -860,6 +876,7 @@ export default function App() {
               blocks={blocks}
               trains={trains}
               proposals={proposals}
+              currentUser={currentUser}
               onCreateProposal={handleCreateProposal}
               onSelectAIOption={handleSelectProposalOption}
               onStationVote={handleStationVote}
